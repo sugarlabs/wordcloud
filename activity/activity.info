@@ -1,0 +1,7 @@
+[Activity]
+name = WordCloud
+activity_version = 1
+bundle_id = org.sugarlabs.WordCloud
+exec = sugar-activity activity.WordCloudActivity
+icon = activity-wordcloud
+license = GPLv2+
