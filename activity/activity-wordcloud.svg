@@ -1,0 +1,26 @@
+<?xml version="1.0" ?><!-- Created with Inkscape (http://www.inkscape.org/) --><!DOCTYPE svg  PUBLIC '-//W3C//DTD SVG 1.1//EN'  'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd' [
+	<!ENTITY stroke_color "#666666">
+	<!ENTITY fill_color "#e0e0e0">
+]><svg height="55" id="svg2" version="1.1" width="55" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg">
+<path
+     d="m 47.031373,28.122706 c 0.08359,-0.684185 0.126451,-1.382797 0.126451,-2.093434 0,-8.389358 -6.026799,-15.190307 -13.461708,-15.190307 -5.479737,0 -10.194871,3.694469 -12.295784,8.996587 -1.23558,-1.157941 -2.822651,-1.853547 -4.554392,-1.853547 -3.93928,0 -7.1327126,3.603084 -7.1327126,8.047869 0,0.660134 0.070727,1.30163 0.2030723,1.915472 -0.081978,-0.0024 -0.1650298,-0.0036 -0.2475446,-0.0036 -4.9476761,-0.0012 -8.95929097,4.524747 -8.95929097,10.108836 0,5.584087 4.01161487,10.110038 9.00429907,10.210439 L 45.374646,48.160634 c 4.928923,-0.02706 8.91589,-4.542785 8.91589,-10.110039 0,-4.926959 -3.123777,-9.031457 -7.259163,-9.927868 z"
+     style="fill:&fill_color;;fill-opacity:1;stroke:&stroke_color;;stroke-width:1.41892922;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none" /><text
+     x="48.834045"
+     y="42.809383"
+     xml:space="preserve"
+     style="font-size:16px;font-style:normal;font-weight:normal;text-align:end;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:end;fill:&stroke_color;;fill-opacity:1;stroke:none;font-family:Sans"><tspan
+       x="48.834045"
+       y="42.809383"
+       id="tspan2985">sugar</tspan></text>
+<text
+     x="-12.459675"
+     y="35.856224"
+     transform="matrix(0,-1,1,0,0,0)"
+     xml:space="preserve"
+     style="font-size:16px;font-style:normal;font-weight:normal;text-align:end;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:end;fill:&stroke_color;;fill-opacity:1;stroke:none;font-family:Sans"><tspan
+       x="-12.459675"
+       y="35.856224"
+       id="tspan2989"><tspan
+         id="tspan2993"
+         style="font-size:8px">cloud</tspan></tspan></text>
+</svg>
