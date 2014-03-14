@@ -91,6 +91,7 @@ class WordCloudActivity(activity.Activity):
 
         go_button = ToolButton('media-playback-start')
         self._toolbox.toolbar.insert(go_button, -1)
+        go_button.set_tooltip(_('Create the cloud'))
         go_button.show()
         go_button.connect('clicked', self._go_cb)
 
