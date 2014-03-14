@@ -8,4 +8,4 @@ is saved to the Sugar Journal.
 
 Based on the pytagcloud package.
 
-![alt text](https://github.com/walterbender/wordcloud/blob/master/WordCloud.png "Word Cloud Example")
+![alt text](http://github.com/walterbender/wordcloud/blob/master/WordCloud.png?raw=true "Word Cloud Example")
