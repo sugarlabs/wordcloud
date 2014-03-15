@@ -1,0 +1,55 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <walter@sugarlabs.org>, 2014.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-03-13 13:12-0500\n"
+"PO-Revision-Date: 2014-03-13 14:53-0500\n"
+"Last-Translator: Walter Bender <walter@sugarlabs.org>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Pootle 2.0.5\n"
+
+#: activity/activity.info:2
+msgid "WordCloud"
+msgstr "Nublablabla"
+
+#: activity.py:42
+msgid ""
+"Type your text here and then click on the start button. Your word cloud will "
+"be saved to the Journal."
+msgstr ""
+"Escriba su texto aquí y luego haga clic en el botón de inicio. "
+"Su nube de palabras se guardará en el Diario."
+
+#: activity.py:66
+msgid "Edit"
+msgstr "Editar"
+
+#: activity.py:73
+msgid "Copy"
+msgstr "Copiar"
+
+#: activity.py:81
+msgid "Paste"
+msgstr "Pegar"
+
+#: activity.py:97
+msgid "Create the cloud"
+msgstr "Crear la nube"
+
+#: activity.py:135
+msgid "Word Cloud"
+msgstr "Nube Palabra"
+
+#: activity.py:155
+msgid "Cloud Text"
+msgstr "Las palabras en la nube"

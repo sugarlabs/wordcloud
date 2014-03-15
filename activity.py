@@ -39,6 +39,9 @@ from sugar3 import profile
 from pytagcloud import create_tag_image, make_tags
 from pytagcloud.lang.counter import get_tag_counts
 
+_TEXT = _('Type your text here and then click on the start button. '
+          'Your word cloud will be saved to the Journal.')
+
 
 class WordCloudActivity(activity.Activity):
 
@@ -168,8 +171,10 @@ class TextItem(ToolButton):
         self._text_view.set_left_margin(style.DEFAULT_PADDING)
         self._text_view.set_right_margin(style.DEFAULT_PADDING)
         self._text_view.set_wrap_mode(Gtk.WrapMode.WORD_CHAR)
-        text_buffer = Gtk.TextBuffer()
-        self._text_view.set_buffer(text_buffer)
+        self._text_buffer = Gtk.TextBuffer()
+        self._text_buffer.set_text(_TEXT)
+        self._text_view.set_buffer(self._text_buffer)
+        self._text_view.connect('focus-in-event', self._text_focus_in_cb)
         sw.add(self._text_view)
         description_box.append_item(sw, vertical_padding=0)
         self._palette.set_content(description_box)
@@ -206,3 +211,9 @@ class TextItem(ToolButton):
         start_iter = buf.get_start_iter()
         end_iter = buf.get_end_iter()
         return buf.get_text(start_iter, end_iter, False)
+
+    def _text_focus_in_cb(self, widget, event):
+        bounds = self._text_buffer.get_bounds()
+        text = self._text_buffer.get_text(bounds[0], bounds[1], True)
+        if text == _TEXT:
+            self._text_buffer.set_text('')
