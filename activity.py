@@ -109,8 +109,10 @@ class WordCloudActivity(activity.Activity):
         self._toolbox.toolbar.insert(stop_button, -1)
         stop_button.show()
 
-        # FIXME
-        self._text_item.set_expanded(True)
+        image = Gtk.Image.new_from_file(os.path.join(
+            activity.get_bundle_path(), 'WordCloud.png'))
+        self.set_canvas(image)
+        image.show()
 
     def __realize_cb(self, window):
         self.window_xid = window.get_window().get_xid()
@@ -163,10 +165,12 @@ class TextItem(ToolButton):
         self._palette = self.get_palette()
 
         description_box = PaletteMenuBox()
+
         sw = Gtk.ScrolledWindow()
         sw.set_size_request(int(Gdk.Screen.width() / 2),
                             2 * style.GRID_CELL_SIZE)
         sw.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+
         self._text_view = Gtk.TextView()
         self._text_view.set_left_margin(style.DEFAULT_PADDING)
         self._text_view.set_right_margin(style.DEFAULT_PADDING)
@@ -176,9 +180,12 @@ class TextItem(ToolButton):
         self._text_view.set_buffer(self._text_buffer)
         self._text_view.connect('focus-in-event', self._text_focus_in_cb)
         sw.add(self._text_view)
+
         description_box.append_item(sw, vertical_padding=0)
         self._palette.set_content(description_box)
         description_box.show_all()
+
+        self.set_expanded(True)
 
     def get_toolbar_box(self):
         parent = self.get_parent()
