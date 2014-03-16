@@ -8,7 +8,7 @@ import colorsys
 import math
 import os
 import pygame
-# import json
+import json
 
 
 TAG_PADDING = 5
@@ -22,7 +22,117 @@ UPPER_START = 0.55
 FONT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fonts')
 DEFAULT_FONT = 'Droid Sans'
 DEFAULT_PALETTE = 'default'
-FONT_CACHE = json.loads(open(os.path.join(FONT_DIR, 'fonts.json'), 'r'))
+fd = open(os.path.join(FONT_DIR, 'fonts.json'), 'r')
+FONT_CACHE = json.loads(fd.read())
+'''
+FONT_CACHE = [
+    {
+        "name": "Nobile",
+        "ttf": "nobile.ttf",
+        "web": "http://fonts.googleapis.com/css?family=Nobile"
+    },
+    {
+        "name": "Old Standard TT",
+        "ttf": "OldStandard-Regular.ttf",
+        "web": "http://fonts.googleapis.com/css?family=Old+Standard+TT"
+    },
+    {
+        "name": "Cantarell",
+        "ttf": "Cantarell-Regular.ttf",
+        "web": "http://fonts.googleapis.com/css?family=Cantarell"
+    },
+    {
+        "name": "Reenie Beanie",
+        "ttf": "ReenieBeanie.ttf",
+        "web": "http://fonts.googleapis.com/css?family=Reenie+Beanie"
+    },
+    {
+        "name": "Cuprum",
+        "ttf": "Cuprum.ttf",
+        "web": "http://fonts.googleapis.com/css?family=Cuprum"
+    },
+    {
+        "name": "Molengo",
+        "ttf": "Molengo-Regular.ttf",
+        "web": "http://fonts.googleapis.com/css?family=Molengo"
+    },
+    {
+        "name": "Neucha",
+        "ttf": "Neucha.ttf",
+        "web": "http://fonts.googleapis.com/css?family=Neucha"
+    },
+    {
+        "name": "Philosopher",
+        "ttf": "Philosopher.ttf",
+        "web": "http://fonts.googleapis.com/css?family=Philosopher"
+    },
+    {
+        "name": "Yanone Kaffeesatz",
+        "ttf": "YanoneKaffeesatz-Regular.ttf",
+        "web": "http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz"
+    },
+    {
+        "name": "Cardo",
+        "ttf": "Cardo99s.ttf",
+        "web": "http://fonts.googleapis.com/css?family=Cardo"
+    },
+    {
+        "name": "Neuton",
+        "ttf": "Neuton.ttf",
+        "web": "http://fonts.googleapis.com/css?family=Neuton"
+    },
+    {
+        "name": "Inconsolata",
+        "ttf": "Inconsolata.ttf",
+        "web": "http://fonts.googleapis.com/css?family=Inconsolata"
+    },
+    {
+        "name": "Crimson Text",
+        "ttf": "CrimsonText-Roman.ttf",
+        "web": "http://fonts.googleapis.com/css?family=Crimson+Text"
+    },
+    {
+        "name": "Josefin Sans",
+        "ttf": "JosefinSansStd-Light.ttf",
+        "web": "http://fonts.googleapis.com/css?family=Josefin+Sans"
+    },
+    {
+        "name": "Droid Sans",
+        "ttf": "DroidSans.ttf",
+        "web": "http://fonts.googleapis.com/css?family=Droid+Sans"
+    },
+    {
+        "name": "Lobster",
+        "ttf": "Lobster.ttf",
+        "web": "http://fonts.googleapis.com/css?family=Lobster"
+    },
+    {
+        "name": "IM Fell DW Pica",
+        "ttf": "IMFeENrm28P.ttf",
+        "web": "http://fonts.googleapis.com/css?family=IM+Fell+DW+Pica"
+    },
+    {
+        "name": "Vollkorn",
+        "ttf": "Vollkorn-Regular.ttf",
+        "web": "http://fonts.googleapis.com/css?family=Vollkorn"
+    },
+    {
+        "name": "Tangerine",
+        "ttf": "Tangerine_Regular.ttf",
+        "web": "http://fonts.googleapis.com/css?family=Tangerine"
+    },
+    {
+        "name": "Coustard",
+        "ttf": "Coustard-Regular.ttf",
+        "web": "http://fonts.googleapis.com/css?family=Coustard"
+    },
+    {
+        "name": "PT Sans Regular",
+        "ttf": "PT_Sans-Regular.ttf",
+        "web": "http://fonts.googleapis.com/css?family=PT+Sans"
+    }
+]
+'''
 pygame.init()
 convsurf = Surface((2 * TAG_PADDING, 2 * TAG_PADDING))
 convsurf.fill((255, 0, 255))
@@ -59,7 +169,8 @@ class Tag(Sprite):
         self.font = font.Font(os.path.join(FONT_DIR,
                                            self.font_spec['ttf']),
                                            self.tag['size'])
-        fonter = self.font.render(tag['tag'], True, tag['color'])
+        fonter = self.font.render(unicode(tag['tag'], 'UTF-8'), True,
+                                  tag['color'])
         frect = fonter.get_bounding_rect()
         frect.x = -frect.x
         frect.y = -frect.y
@@ -76,7 +187,8 @@ class Tag(Sprite):
         
     def _update_mask(self):
         self.mask = mask.from_surface(self.image)
-        self.mask = self.mask.convolve(CONVMASK, None, (TAG_PADDING, TAG_PADDING))
+        self.mask = self.mask.convolve(CONVMASK, None,
+                                       (TAG_PADDING, TAG_PADDING))
 
     def flip(self):        
         angle = 90 if self.rotation == 0 else - 90
@@ -95,7 +207,7 @@ class Tag(Sprite):
         
 def load_font(name):
     for font in FONT_CACHE:
-        if font['name'] == name:
+        if font['name'].encode('utf-8') == name.encode('utf-8'):
             return font
     raise AttributeError('Invalid font name. Should be one of %s' % 
                          ", ".join([f['name'] for f in FONT_CACHE]))

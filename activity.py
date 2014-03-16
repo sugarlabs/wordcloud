@@ -21,7 +21,9 @@ import logging
 
 from gi.repository import Gtk
 from gi.repository import Gdk
+from gi.repository import GdkPixbuf
 from gi.repository import GObject
+from gi.repository import Pango
 
 from gettext import gettext as _
 
@@ -32,11 +34,14 @@ from sugar3.graphics.palettemenu import PaletteMenuBox
 from sugar3.graphics.toolbarbox import ToolbarButton
 from sugar3.activity.widgets import StopButton
 from sugar3.graphics.toolbutton import ToolButton
+from sugar3.graphics.menuitem import MenuItem
+from sugar3.graphics.icon import Icon
 from sugar3.graphics import style
 from sugar3.datastore import datastore
 from sugar3 import profile
+from sugar3 import env
 
-from pytagcloud import create_tag_image, make_tags
+from pytagcloud import create_tag_image, make_tags, load_font, FONT_CACHE
 from pytagcloud.lang.counter import get_tag_counts
 
 _TEXT = _('Type your text here and then click on the start button. '
@@ -49,9 +54,12 @@ class WordCloudActivity(activity.Activity):
         """Set up the HelloWorld activity."""
         activity.Activity.__init__(self, handle)
 
+        logging.debug(FONT_CACHE)
+
         self.connect('realize', self.__realize_cb)
 
         self.max_participants = 1  # No sharing
+        self._font_name = None
 
         self._toolbox = ToolbarBox()
 
@@ -87,6 +95,13 @@ class WordCloudActivity(activity.Activity):
         self._paste_button.show()
         self._paste_button.connect('clicked', self._paste_cb)
         self._paste_button.set_sensitive(False)
+
+        self._font_button = ToolButton('font-text')
+        self._font_button.set_tooltip(_('Select font'))
+        self._font_button.connect('clicked', self.__font_selection_cb)
+        self._toolbox.toolbar.insert(self._font_button, -1)
+        self._font_button.show()
+        self._setup_font_palette()
 
         self._text_item = TextItem(self)
         self._toolbox.toolbar.insert(self._text_item, -1)
@@ -126,11 +141,17 @@ class WordCloudActivity(activity.Activity):
             GObject.idle_add(self._create_image, text)
 
     def _create_image(self, text):
+        logging.debug(get_tag_counts(text))
         tags = make_tags(get_tag_counts(text), maxsize=150)
         path = os.path.join(activity.get_activity_root(), 'tmp',
                             'cloud_large.png')
-        create_tag_image(tags, path,
-                         size=(Gdk.Screen.width(), Gdk.Screen.height()))
+        if self._font_name is not None:
+            create_tag_image(tags, path,
+                             size=(Gdk.Screen.width(), Gdk.Screen.height()),
+                             fontname=self._font_name)
+        else:
+            create_tag_image(tags, path,
+                             size=(Gdk.Screen.width(), Gdk.Screen.height()))
         self.get_window().set_cursor(Gdk.Cursor.new(Gdk.CursorType.LEFT_PTR))
 
         image = Gtk.Image.new_from_file(path)
@@ -152,6 +173,36 @@ class WordCloudActivity(activity.Activity):
         clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
         clipboard_text = clipboard.wait_for_text()
         self._entry.paste_clipboard()
+
+    def __font_selection_cb(self, widget):
+        if self._font_palette:
+            if not self._font_palette.is_up():
+                self._font_palette.popup(immediate=True,
+                                    state=self._font_palette.SECONDARY)
+            else:
+                self._font_palette.popdown(immediate=True)
+            return
+
+    def _init_font_list(self):
+        self._font_list = []
+        for f in FONT_CACHE:
+            self._font_list.append(f['name'].encode('utf-8'))
+        return
+
+    def _setup_font_palette(self):
+        self._init_font_list()
+        self._font_palette = self._font_button.get_palette()
+        for font in sorted(self._font_list):
+            menu_item = MyMenuItem(image=FontImage(font.replace(' ', '-')),
+                                   text_label=font)
+            menu_item.connect('activate', self.__font_selected_cb, font)
+            self._font_palette.menu.append(menu_item)
+            menu_item.show()
+
+    def __font_selected_cb(self, widget, font_name):
+        logging.debug(font_name)
+        self._font_name = font_name
+        return
 
 
 class TextItem(ToolButton):
@@ -224,3 +275,69 @@ class TextItem(ToolButton):
         text = self._text_buffer.get_text(bounds[0], bounds[1], True)
         if text == _TEXT:
             self._text_buffer.set_text('')
+
+
+class FontImage(Gtk.Image):
+
+    _FONT_ICON = \
+'<?xml version="1.0" encoding="UTF-8" standalone="no"?>\
+<svg\
+   version="1.1"\
+   width="27.5"\
+   height="27.5"\
+   viewBox="0 0 27.5 27.5">\
+<text\
+     x="5"\
+     y="21"\
+     style="font-size:25px;fill:#ffffff;stroke:none"><tspan\
+       x="5"\
+       y="21"\
+       style="font-family:%s">F</tspan></text>\
+</svg>'
+
+    def __init__(self, font_name):
+        super(Gtk.Image, self).__init__()
+
+        path = os.path.join(activity.get_bundle_path(), 'pytagcloud', 'fonts',
+                            font_name.replace(' ', '-') + '.png')
+        pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(
+            path, 24, 24)
+        self.set_from_pixbuf(pixbuf)
+        self.show()
+
+
+class MyMenuItem(MenuItem):
+
+    def __init__(self, text_label=None, icon_name=None, text_maxlen=60,
+                 xo_color=None, file_name=None, image=None):
+        super(MenuItem, self).__init__()
+        self._accelerator = None
+        self.props.submenu = None
+
+        label = Gtk.AccelLabel(text_label)
+        label.set_alignment(0.0, 0.5)
+        label.set_accel_widget(self)
+        if text_maxlen > 0:
+            label.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
+            label.set_max_width_chars(text_maxlen)
+        self.add(label)
+        label.show()
+
+        if image is not None:
+            self.set_image(image)
+            image.show()
+
+        elif icon_name is not None:
+            icon = Icon(icon_name=icon_name,
+                        icon_size=Gtk.IconSize.MENU)
+            if xo_color is not None:
+                icon.props.xo_color = xo_color
+            self.set_image(icon)
+            icon.show()
+
+        elif file_name is not None:
+            icon = Icon(file=file_name, icon_size=Gtk.IconSize.MENU)
+            if xo_color is not None:
+                icon.props.xo_color = xo_color
+            self.set_image(icon)
+            icon.show()

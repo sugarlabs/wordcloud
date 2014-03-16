@@ -2,7 +2,13 @@ NEWS
 
 2
 
-New Spanish translations (thanks to Irenarco)
+ENHANCEMENTS:
+* New Spanish translations (thanks to Irenarco)
+* Load image on start
+* Font selector
+
+BUG FIX:
+* Unicode fonts
 
 1
 
