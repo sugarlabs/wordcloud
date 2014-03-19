@@ -27,6 +27,8 @@ from gi.repository import Pango
 
 from gettext import gettext as _
 
+from sugar3.graphics.palettemenu import PaletteMenuItem
+from sugar3.graphics.palette import ToolInvoker
 from sugar3.activity import activity
 from sugar3.graphics.toolbarbox import ToolbarBox
 from sugar3.activity.widgets import ActivityToolbarButton
@@ -37,6 +39,8 @@ from sugar3.graphics.toolbutton import ToolButton
 from sugar3.graphics.menuitem import MenuItem
 from sugar3.graphics.icon import Icon
 from sugar3.graphics import style
+from sugar3.graphics.xocolor import XoColor
+from sugar3.graphics.palette import Palette
 from sugar3.datastore import datastore
 from sugar3 import profile
 from sugar3 import env
@@ -53,8 +57,6 @@ class WordCloudActivity(activity.Activity):
     def __init__(self, handle):
         """Set up the HelloWorld activity."""
         activity.Activity.__init__(self, handle)
-
-        logging.debug(FONT_CACHE)
 
         self.connect('realize', self.__realize_cb)
 
@@ -96,13 +98,13 @@ class WordCloudActivity(activity.Activity):
         self._paste_button.connect('clicked', self._paste_cb)
         self._paste_button.set_sensitive(False)
 
-        self._font_button = ToolButton('font-text')
-        self._font_button.set_tooltip(_('Select font'))
-        self._font_button.connect('clicked', self.__font_selection_cb)
+        self.font_palette_content = set_palette_list(
+            self._setup_font_palette())
+        self._font_button = FontToolItem(self)
+        self.font_palette_content.show()
         self._toolbox.toolbar.insert(self._font_button, -1)
         self._font_button.show()
-        self._setup_font_palette()
-
+        
         self._text_item = TextItem(self)
         self._toolbox.toolbar.insert(self._text_item, -1)
         self._text_item.show()
@@ -141,7 +143,6 @@ class WordCloudActivity(activity.Activity):
             GObject.idle_add(self._create_image, text)
 
     def _create_image(self, text):
-        logging.debug(get_tag_counts(text))
         tags = make_tags(get_tag_counts(text), maxsize=150)
         path = os.path.join(activity.get_activity_root(), 'tmp',
                             'cloud_large.png')
@@ -174,15 +175,6 @@ class WordCloudActivity(activity.Activity):
         clipboard_text = clipboard.wait_for_text()
         self._entry.paste_clipboard()
 
-    def __font_selection_cb(self, widget):
-        if self._font_palette:
-            if not self._font_palette.is_up():
-                self._font_palette.popup(immediate=True,
-                                    state=self._font_palette.SECONDARY)
-            else:
-                self._font_palette.popdown(immediate=True)
-            return
-
     def _init_font_list(self):
         self._font_list = []
         for f in FONT_CACHE:
@@ -191,16 +183,15 @@ class WordCloudActivity(activity.Activity):
 
     def _setup_font_palette(self):
         self._init_font_list()
-        self._font_palette = self._font_button.get_palette()
-        for font in sorted(self._font_list):
-            menu_item = MyMenuItem(image=FontImage(font.replace(' ', '-')),
-                                   text_label=font)
-            menu_item.connect('activate', self.__font_selected_cb, font)
-            self._font_palette.menu.append(menu_item)
-            menu_item.show()
 
-    def __font_selected_cb(self, widget, font_name):
-        logging.debug(font_name)
+        palette_list = []
+        for font in sorted(self._font_list):
+            palette_list.append({'icon': FontImage(font.replace(' ', '-')),
+                                 'callback': self.__font_selected_cb,
+                                 'label': font})
+        return palette_list
+
+    def __font_selected_cb(self, widget, event, font_name):
         self._font_name = font_name
         return
 
@@ -279,65 +270,97 @@ class TextItem(ToolButton):
 
 class FontImage(Gtk.Image):
 
-    _FONT_ICON = \
-'<?xml version="1.0" encoding="UTF-8" standalone="no"?>\
-<svg\
-   version="1.1"\
-   width="27.5"\
-   height="27.5"\
-   viewBox="0 0 27.5 27.5">\
-<text\
-     x="5"\
-     y="21"\
-     style="font-size:25px;fill:#ffffff;stroke:none"><tspan\
-       x="5"\
-       y="21"\
-       style="font-family:%s">F</tspan></text>\
-</svg>'
-
     def __init__(self, font_name):
         super(Gtk.Image, self).__init__()
 
         path = os.path.join(activity.get_bundle_path(), 'pytagcloud', 'fonts',
                             font_name.replace(' ', '-') + '.png')
         pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(
-            path, 24, 24)
+            path, style.SMALL_ICON_SIZE, style.SMALL_ICON_SIZE) # 24, 24)
         self.set_from_pixbuf(pixbuf)
         self.show()
 
 
-class MyMenuItem(MenuItem):
+class FontToolItem(ToolButton):
 
-    def __init__(self, text_label=None, icon_name=None, text_maxlen=60,
-                 xo_color=None, file_name=None, image=None):
-        super(MenuItem, self).__init__()
-        self._accelerator = None
-        self.props.submenu = None
+    def __init__(self, activity, **kwargs):
+        ToolButton.__init__(self, 'font-text', **kwargs)
+        self.set_tooltip(_('Select_font'))
+        self.palette_invoker.props.toggle_palette = True
+        self.palette_invoker.props.lock_palette = True
+        self.props.hide_tooltip_on_click = False
+        self._palette = self.get_palette()
 
-        label = Gtk.AccelLabel(text_label)
-        label.set_alignment(0.0, 0.5)
-        label.set_accel_widget(self)
-        if text_maxlen > 0:
-            label.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
-            label.set_max_width_chars(text_maxlen)
-        self.add(label)
-        label.show()
+        font_box = PaletteMenuBox()
 
-        if image is not None:
-            self.set_image(image)
-            image.show()
+        font_box.append_item(activity.font_palette_content,
+                             vertical_padding=0)
+        self._palette.set_content(font_box)
+        font_box.show_all()
 
-        elif icon_name is not None:
-            icon = Icon(icon_name=icon_name,
-                        icon_size=Gtk.IconSize.MENU)
-            if xo_color is not None:
-                icon.props.xo_color = xo_color
-            self.set_image(icon)
-            icon.show()
+        self.set_expanded(True)
 
-        elif file_name is not None:
-            icon = Icon(file=file_name, icon_size=Gtk.IconSize.MENU)
-            if xo_color is not None:
-                icon.props.xo_color = xo_color
-            self.set_image(icon)
-            icon.show()
+    def get_toolbar_box(self):
+        parent = self.get_parent()
+        if not hasattr(parent, 'owner'):
+            return None
+        return parent.owner
+
+    toolbar_box = property(get_toolbar_box)
+
+    def set_expanded(self, expanded):
+        box = self.toolbar_box
+        if not box:
+            return
+
+        if not expanded:
+            self.palette_invoker.notify_popdown()
+            return
+
+        if box.expanded_button is not None:
+            box.expanded_button.queue_draw()
+            if box.expanded_button != self:
+                box.expanded_button.set_expanded(False)
+        box.expanded_button = self
+
+
+def set_palette_list(palette_list):
+    item_width = style.GRID_CELL_SIZE * 3
+    item_height = style.SMALL_ICON_SIZE + style.DEFAULT_SPACING + \
+                  style.DEFAULT_PADDING
+
+    nx = 3
+    ny = int((len(palette_list) + 2) / 3)
+
+    grid = Gtk.Grid()
+    grid.set_row_spacing(style.DEFAULT_PADDING)
+    grid.set_column_spacing(0)
+    grid.set_border_width(0)
+
+    scrolled_window = Gtk.ScrolledWindow()
+    scrolled_window.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+    scrolled_window.set_size_request(nx * item_width, ny * item_height)
+    scrolled_window.set_shadow_type(Gtk.ShadowType.ETCHED_IN)
+    scrolled_window.add_with_viewport(grid)
+    grid.show()
+
+    x = 0
+    y = 0
+
+    for item in palette_list:
+        menu_item = PaletteMenuItem()
+        menu_item.set_label(item['label'])
+        menu_item.set_image(item['icon'])
+        item['icon'].show()
+
+        menu_item.connect('button-release-event', item['callback'],
+                          item['label'])
+        grid.attach(menu_item, x, y, 1, 1)
+        x += 1
+        if x == nx:
+            x = 0
+            y += 1
+
+        menu_item.show()
+
+    return scrolled_window

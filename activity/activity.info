@@ -1,6 +1,6 @@
 [Activity]
 name = WordCloud
-activity_version = 2
+activity_version = 3
 bundle_id = org.sugarlabs.WordCloud
 exec = sugar-activity activity.WordCloudActivity
 icon = activity-wordcloud
