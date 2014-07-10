@@ -36,6 +36,7 @@ from sugar3.graphics.palettemenu import PaletteMenuBox
 from sugar3.graphics.toolbarbox import ToolbarButton
 from sugar3.activity.widgets import StopButton
 from sugar3.graphics.toolbutton import ToolButton
+from sugar3.graphics.radiotoolbutton import RadioToolButton
 from sugar3.graphics.menuitem import MenuItem
 from sugar3.graphics.icon import Icon
 from sugar3.graphics import style
@@ -45,7 +46,8 @@ from sugar3.datastore import datastore
 from sugar3 import profile
 from sugar3 import env
 
-from pytagcloud import create_tag_image, make_tags, load_font, FONT_CACHE
+from pytagcloud import (create_tag_image, make_tags, load_font, FONT_CACHE,
+                        LAYOUT_HORIZONTAL, LAYOUT_VERTICAL, LAYOUT_MIX)
 from pytagcloud.lang.counter import get_tag_counts
 
 _TEXT = _('Type your text here and then click on the start button. '
@@ -62,6 +64,7 @@ class WordCloudActivity(activity.Activity):
 
         self.max_participants = 1  # No sharing
         self._font_name = None
+        self._layout = LAYOUT_MIX
 
         self._toolbox = ToolbarBox()
 
@@ -105,11 +108,30 @@ class WordCloudActivity(activity.Activity):
         self._toolbox.toolbar.insert(self._font_button, -1)
         self._font_button.show()
         
+        self._layout_mix = RadioToolButton(group=None)
+        self._layout_mix.set_icon_name('format-cloud-4')
+        self._layout_mix.connect('clicked', self._layout_cb, LAYOUT_MIX)
+        self._toolbox.toolbar.insert(self._layout_mix, -1)
+        self._layout_mix.show()
+
+        self._layout_horiz = RadioToolButton(group=self._layout_mix)
+        self._layout_horiz.set_icon_name('format-cloud-0')
+        self._layout_horiz.connect('clicked', self._layout_cb,
+                                   LAYOUT_HORIZONTAL)
+        self._toolbox.toolbar.insert(self._layout_horiz, -1)
+        self._layout_horiz.show()
+
+        self._layout_vert = RadioToolButton(group=self._layout_mix)
+        self._layout_vert.set_icon_name('format-cloud-1')
+        self._layout_vert.connect('clicked', self._layout_cb, LAYOUT_VERTICAL)
+        self._toolbox.toolbar.insert(self._layout_vert, -1)
+        self._layout_vert.show()
+
         self._text_item = TextItem(self)
         self._toolbox.toolbar.insert(self._text_item, -1)
         self._text_item.show()
 
-        go_button = ToolButton('media-playback-start')
+        go_button = ToolButton('generate-cloud')
         self._toolbox.toolbar.insert(go_button, -1)
         go_button.set_tooltip(_('Create the cloud'))
         go_button.show()
@@ -134,6 +156,9 @@ class WordCloudActivity(activity.Activity):
     def __realize_cb(self, window):
         self.window_xid = window.get_window().get_xid()
 
+    def _layout_cb(self, widget, layout):
+        self._layout = layout
+
     def _go_cb(self, widget):
         self._text_item.set_expanded(False)
         text = self._text_item.get_text_from_buffer()
@@ -147,11 +172,11 @@ class WordCloudActivity(activity.Activity):
         path = os.path.join(activity.get_activity_root(), 'tmp',
                             'cloud_large.png')
         if self._font_name is not None:
-            create_tag_image(tags, path,
+            create_tag_image(tags, path, layout=self._layout,
                              size=(Gdk.Screen.width(), Gdk.Screen.height()),
                              fontname=self._font_name)
         else:
-            create_tag_image(tags, path,
+            create_tag_image(tags, path, layout=self._layout,
                              size=(Gdk.Screen.width(), Gdk.Screen.height()))
         self.get_window().set_cursor(Gdk.Cursor.new(Gdk.CursorType.LEFT_PTR))
 
@@ -199,7 +224,7 @@ class WordCloudActivity(activity.Activity):
 class TextItem(ToolButton):
 
     def __init__(self, activity, **kwargs):
-        ToolButton.__init__(self, 'edit-description', **kwargs)
+        ToolButton.__init__(self, 'edit-cloud', **kwargs)
         self.set_tooltip(_('Cloud Text'))
         self.palette_invoker.props.toggle_palette = True
         self.palette_invoker.props.lock_palette = True
