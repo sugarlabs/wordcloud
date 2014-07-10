@@ -186,15 +186,20 @@ class WordCloudActivity(activity.Activity):
 
     def _create_image(self, text):
         tag_counts = get_tag_counts(text)
+
         if self._repeat_tags:
             expanded_tag_counts = []
-            for i in range(5):
+            i = 1
+            while len(expanded_tag_counts) < 50:
                 for tag in tag_counts:
                     expanded_tag_counts.append((tag[0], i * 3 + 1))
+                i += 1
             tag_counts = expanded_tag_counts
+
         tags = make_tags(tag_counts, maxsize=150, colors=self._color_scheme)
         path = os.path.join(activity.get_activity_root(), 'tmp',
                             'cloud_large.png')
+
         if self._font_name is not None:
             create_tag_image(tags, path, layout=self._layout,
                              size=(Gdk.Screen.width(), Gdk.Screen.height()),
@@ -202,6 +207,7 @@ class WordCloudActivity(activity.Activity):
         else:
             create_tag_image(tags, path, layout=self._layout,
                              size=(Gdk.Screen.width(), Gdk.Screen.height()))
+
         self.get_window().set_cursor(Gdk.Cursor.new(Gdk.CursorType.LEFT_PTR))
 
         image = Gtk.Image.new_from_file(path)
