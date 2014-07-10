@@ -340,15 +340,31 @@ def _draw_cloud(
     # resize cloud
     zoom = min(float(size[0]) / canvas.w, float(size[1]) / canvas.h)
     
+    print 'zoom', zoom
+    cw = int(canvas.w * zoom)
+    ch = int(canvas.h * zoom)
+
     for tag in aligned_tags:
         tag.rect.x *= zoom
         tag.rect.y *= zoom
         tag.rect.width *= zoom
         tag.rect.height *= zoom
+
+        if tag.rect.x + tag.rect.width > cw:
+            print 'shifting x'
+            tag.rect.x = cw - tag.rect.width
+        if tag.rect.y + tag.rect.height > ch:
+            print 'shifting y'
+            tag.rect.y = ch - tag.rect.height
+
         tag.tag['size'] = int(tag.tag['size'] * zoom)
         tag.update_fontsize() 
     
     canvas = _get_tags_bounding(aligned_tags)
+]
+    # Add some padding
+    canvas.width += 120
+    canvas.height += 120
     
     return canvas, aligned_tags
 

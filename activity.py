@@ -190,9 +190,11 @@ class WordCloudActivity(activity.Activity):
         if self._repeat_tags:
             expanded_tag_counts = []
             i = 1
-            while len(expanded_tag_counts) < 50:
+            while len(expanded_tag_counts) < 25:
                 for tag in tag_counts:
                     expanded_tag_counts.append((tag[0], i * 3 + 1))
+                    if not len(expanded_tag_counts) < 25:
+                        break
                 i += 1
             tag_counts = expanded_tag_counts
 
