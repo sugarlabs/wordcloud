@@ -49,6 +49,7 @@ from sugar3 import env
 from pytagcloud import (create_tag_image, make_tags, load_font, FONT_CACHE,
                         LAYOUT_HORIZONTAL, LAYOUT_VERTICAL, LAYOUT_MIX)
 from pytagcloud.lang.counter import get_tag_counts
+from pytagcloud.colors import COLOR_SCHEMES
 
 _TEXT = _('Type your text here and then click on the start button. '
           'Your word cloud will be saved to the Journal.')
@@ -65,6 +66,7 @@ class WordCloudActivity(activity.Activity):
         self.max_participants = 1  # No sharing
         self._font_name = None
         self._layout = LAYOUT_MIX
+        self._color_scheme = COLOR_SCHEMES['audacity']
 
         self._toolbox = ToolbarBox()
 
@@ -102,11 +104,22 @@ class WordCloudActivity(activity.Activity):
         self._paste_button.set_sensitive(False)
 
         self.font_palette_content = set_palette_list(
-            self._setup_font_palette())
+            self._setup_font_palette(), 3, 7,
+            style.SMALL_ICON_SIZE + style.DEFAULT_SPACING +
+            style.DEFAULT_PADDING)
         self._font_button = FontToolItem(self)
         self.font_palette_content.show()
         self._toolbox.toolbar.insert(self._font_button, -1)
         self._font_button.show()
+
+        self.color_palette_content = set_palette_list(
+            self._setup_color_palette(), 1, 5,
+            style.GRID_CELL_SIZE + style.DEFAULT_SPACING +
+            style.DEFAULT_PADDING)
+        self._color_button = ColorToolItem(self)
+        self.color_palette_content.show()
+        self._toolbox.toolbar.insert(self._color_button, -1)
+        self._color_button.show()
         
         self._layout_mix = RadioToolButton(group=None)
         self._layout_mix.set_icon_name('format-cloud-4')
@@ -168,7 +181,8 @@ class WordCloudActivity(activity.Activity):
             GObject.idle_add(self._create_image, text)
 
     def _create_image(self, text):
-        tags = make_tags(get_tag_counts(text), maxsize=150)
+        tags = make_tags(get_tag_counts(text), maxsize=150,
+                         colors=self._color_scheme)
         path = os.path.join(activity.get_activity_root(), 'tmp',
                             'cloud_large.png')
         if self._font_name is not None:
@@ -220,6 +234,25 @@ class WordCloudActivity(activity.Activity):
         self._font_name = font_name
         return
 
+    def _setup_color_palette(self):
+        palette_list = []
+        for color in COLOR_SCHEMES.keys():
+            palette_list.append({'icon': ColorImage(color),
+                                 'callback': self.__color_selected_cb,
+                                 'label': color})
+
+        palette_list.append({'icon': ColorImage('random'),
+                             'callback': self.__color_selected_cb,
+                             'label': _('random')})
+        return palette_list
+
+    def __color_selected_cb(self, widget, event, color):
+        if color == _('random'):
+            self._color_scheme = None
+        else:
+            self._color_scheme = COLOR_SCHEMES[color]
+        return
+
 
 class TextItem(ToolButton):
 
@@ -234,8 +267,8 @@ class TextItem(ToolButton):
         description_box = PaletteMenuBox()
 
         sw = Gtk.ScrolledWindow()
-        sw.set_size_request(int(Gdk.Screen.width() / 2),
-                            2 * style.GRID_CELL_SIZE)
+        sw.set_size_request(int(Gdk.Screen.width() / 3),
+                            5 * style.GRID_CELL_SIZE)
         sw.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
 
         self._text_view = Gtk.TextView()
@@ -306,11 +339,67 @@ class FontImage(Gtk.Image):
         self.show()
 
 
+class ColorImage(Gtk.Image):
+
+    def __init__(self, color_name):
+        super(Gtk.Image, self).__init__()
+
+        path = os.path.join(activity.get_bundle_path(), 'colors',
+                            color_name + '.png')
+        pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(
+            path, style.GRID_CELL_SIZE, style.GRID_CELL_SIZE)
+        self.set_from_pixbuf(pixbuf)
+        self.show()
+
+
+class ColorToolItem(ToolButton):
+
+    def __init__(self, activity, **kwargs):
+        ToolButton.__init__(self, 'color-cloud', **kwargs)
+        self.set_tooltip(_('Select color scheme'))
+        self.palette_invoker.props.toggle_palette = True
+        self.palette_invoker.props.lock_palette = True
+        self.props.hide_tooltip_on_click = False
+        self._palette = self.get_palette()
+
+        color_box = PaletteMenuBox()
+
+        color_box.append_item(activity.color_palette_content,
+                              vertical_padding=0)
+        self._palette.set_content(color_box)
+        color_box.show_all()
+
+        self.set_expanded(True)
+
+    def get_toolbar_box(self):
+        parent = self.get_parent()
+        if not hasattr(parent, 'owner'):
+            return None
+        return parent.owner
+
+    toolbar_box = property(get_toolbar_box)
+
+    def set_expanded(self, expanded):
+        box = self.toolbar_box
+        if not box:
+            return
+
+        if not expanded:
+            self.palette_invoker.notify_popdown()
+            return
+
+        if box.expanded_button is not None:
+            box.expanded_button.queue_draw()
+            if box.expanded_button != self:
+                box.expanded_button.set_expanded(False)
+        box.expanded_button = self
+
+
 class FontToolItem(ToolButton):
 
     def __init__(self, activity, **kwargs):
         ToolButton.__init__(self, 'font-text', **kwargs)
-        self.set_tooltip(_('Select_font'))
+        self.set_tooltip(_('Select font'))
         self.palette_invoker.props.toggle_palette = True
         self.palette_invoker.props.lock_palette = True
         self.props.hide_tooltip_on_click = False
@@ -349,13 +438,8 @@ class FontToolItem(ToolButton):
         box.expanded_button = self
 
 
-def set_palette_list(palette_list):
+def set_palette_list(palette_list, nx, ny, item_height):
     item_width = style.GRID_CELL_SIZE * 3
-    item_height = style.SMALL_ICON_SIZE + style.DEFAULT_SPACING + \
-                  style.DEFAULT_PADDING
-
-    nx = 3
-    ny = int((len(palette_list) + 2) / 3)
 
     grid = Gtk.Grid()
     grid.set_row_spacing(style.DEFAULT_PADDING)
