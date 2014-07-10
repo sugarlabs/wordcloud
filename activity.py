@@ -72,7 +72,7 @@ class WordCloudActivity(activity.Activity):
 
         self.max_participants = 1  # No sharing
         self._font_name = None
-        self._layout = LAYOUT_MIX
+        self._layout = LAYOUT_RANDOM
         self._color_scheme = COLOR_SCHEMES['audacity']
         self._repeat_tags = False
 
