@@ -36,7 +36,7 @@ from sugar3.graphics.palettemenu import PaletteMenuBox
 from sugar3.graphics.toolbarbox import ToolbarButton
 from sugar3.activity.widgets import StopButton
 from sugar3.graphics.toolbutton import ToolButton
-from sugar3.graphics.radiotoolbutton import RadioToolButton
+from sugar3.graphics.toggletoolbutton import ToggleToolButton
 from sugar3.graphics.menuitem import MenuItem
 from sugar3.graphics.icon import Icon
 from sugar3.graphics import style
@@ -47,9 +47,16 @@ from sugar3 import profile
 from sugar3 import env
 
 from pytagcloud import (create_tag_image, make_tags, load_font, FONT_CACHE,
-                        LAYOUT_HORIZONTAL, LAYOUT_VERTICAL, LAYOUT_MIX)
+                        LAYOUT_HORIZONTAL, LAYOUT_VERTICAL, LAYOUT_MIX,
+                        LAYOUT_FORTYFIVE, LAYOUT_RANDOM)
 from pytagcloud.lang.counter import get_tag_counts
 from pytagcloud.colors import COLOR_SCHEMES
+
+LAYOUT_SCHEMES = {'horizontal': LAYOUT_HORIZONTAL,
+                  'vertical': LAYOUT_VERTICAL,
+                  'mix': LAYOUT_MIX,
+                  'fortyfive': LAYOUT_FORTYFIVE,
+                  'random': LAYOUT_RANDOM}
 
 _TEXT = _('Type your text here and then click on the start button. '
           'Your word cloud will be saved to the Journal.')
@@ -67,6 +74,7 @@ class WordCloudActivity(activity.Activity):
         self._font_name = None
         self._layout = LAYOUT_MIX
         self._color_scheme = COLOR_SCHEMES['audacity']
+        self._repeat_tags = False
 
         self._toolbox = ToolbarBox()
 
@@ -121,24 +129,20 @@ class WordCloudActivity(activity.Activity):
         self._toolbox.toolbar.insert(self._color_button, -1)
         self._color_button.show()
         
-        self._layout_mix = RadioToolButton(group=None)
-        self._layout_mix.set_icon_name('format-cloud-4')
-        self._layout_mix.connect('clicked', self._layout_cb, LAYOUT_MIX)
-        self._toolbox.toolbar.insert(self._layout_mix, -1)
-        self._layout_mix.show()
-
-        self._layout_horiz = RadioToolButton(group=self._layout_mix)
-        self._layout_horiz.set_icon_name('format-cloud-0')
-        self._layout_horiz.connect('clicked', self._layout_cb,
-                                   LAYOUT_HORIZONTAL)
-        self._toolbox.toolbar.insert(self._layout_horiz, -1)
-        self._layout_horiz.show()
-
-        self._layout_vert = RadioToolButton(group=self._layout_mix)
-        self._layout_vert.set_icon_name('format-cloud-1')
-        self._layout_vert.connect('clicked', self._layout_cb, LAYOUT_VERTICAL)
-        self._toolbox.toolbar.insert(self._layout_vert, -1)
-        self._layout_vert.show()
+        self.layout_palette_content = set_palette_list(
+            self._setup_layout_palette(), 1, 5,
+            style.GRID_CELL_SIZE + style.DEFAULT_SPACING +
+            style.DEFAULT_PADDING)
+        self._layout_button = LayoutToolItem(self)
+        self.layout_palette_content.show()
+        self._toolbox.toolbar.insert(self._layout_button, -1)
+        self._layout_button.show()
+        
+        self._repeat_button = ToggleToolButton('repeat-cloud')
+        self._toolbox.toolbar.insert(self._repeat_button, -1)
+        self._repeat_button.set_tooltip(_('Repeat words'))
+        self._repeat_button.show()
+        self._repeat_button.connect('clicked', self._repeat_cb)
 
         self._text_item = TextItem(self)
         self._toolbox.toolbar.insert(self._text_item, -1)
@@ -169,8 +173,8 @@ class WordCloudActivity(activity.Activity):
     def __realize_cb(self, window):
         self.window_xid = window.get_window().get_xid()
 
-    def _layout_cb(self, widget, layout):
-        self._layout = layout
+    def _repeat_cb(self, widget):
+        self._repeat_tags = not self._repeat_tags
 
     def _go_cb(self, widget):
         self._text_item.set_expanded(False)
@@ -181,8 +185,14 @@ class WordCloudActivity(activity.Activity):
             GObject.idle_add(self._create_image, text)
 
     def _create_image(self, text):
-        tags = make_tags(get_tag_counts(text), maxsize=150,
-                         colors=self._color_scheme)
+        tag_counts = get_tag_counts(text)
+        if self._repeat_tags:
+            expanded_tag_counts = []
+            for i in range(5):
+                for tag in tag_counts:
+                    expanded_tag_counts.append((tag[0], i * 3 + 1))
+            tag_counts = expanded_tag_counts
+        tags = make_tags(tag_counts, maxsize=150, colors=self._color_scheme)
         path = os.path.join(activity.get_activity_root(), 'tmp',
                             'cloud_large.png')
         if self._font_name is not None:
@@ -252,6 +262,17 @@ class WordCloudActivity(activity.Activity):
         else:
             self._color_scheme = COLOR_SCHEMES[color]
         return
+
+    def _setup_layout_palette(self):
+        palette_list = []
+        for layout in LAYOUT_SCHEMES.keys():
+            palette_list.append({'icon': LayoutImage(layout),
+                                 'callback': self.__layout_selected_cb,
+                                 'label': layout})
+        return palette_list
+
+    def __layout_selected_cb(self, widget, event, layout):
+        self._layout = LAYOUT_SCHEMES[layout]
 
 
 class TextItem(ToolButton):
@@ -350,6 +371,62 @@ class ColorImage(Gtk.Image):
             path, style.GRID_CELL_SIZE, style.GRID_CELL_SIZE)
         self.set_from_pixbuf(pixbuf)
         self.show()
+
+
+class LayoutImage(Gtk.Image):
+
+    def __init__(self, layout_name):
+        super(Gtk.Image, self).__init__()
+
+        path = os.path.join(activity.get_bundle_path(), 'layouts',
+                            'format-' + layout_name + '.png')
+        pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(
+            path, style.GRID_CELL_SIZE, style.GRID_CELL_SIZE)
+        self.set_from_pixbuf(pixbuf)
+        self.show()
+
+
+class LayoutToolItem(ToolButton):
+
+    def __init__(self, activity, **kwargs):
+        ToolButton.__init__(self, 'format-cloud-4', **kwargs)
+        self.set_tooltip(_('Select layout'))
+        self.palette_invoker.props.toggle_palette = True
+        self.palette_invoker.props.lock_palette = True
+        self.props.hide_tooltip_on_click = False
+        self._palette = self.get_palette()
+
+        layout_box = PaletteMenuBox()
+
+        layout_box.append_item(activity.layout_palette_content,
+                              vertical_padding=0)
+        self._palette.set_content(layout_box)
+        layout_box.show_all()
+
+        self.set_expanded(True)
+
+    def get_toolbar_box(self):
+        parent = self.get_parent()
+        if not hasattr(parent, 'owner'):
+            return None
+        return parent.owner
+
+    toolbar_box = property(get_toolbar_box)
+
+    def set_expanded(self, expanded):
+        box = self.toolbar_box
+        if not box:
+            return
+
+        if not expanded:
+            self.palette_invoker.notify_popdown()
+            return
+
+        if box.expanded_button is not None:
+            box.expanded_button.queue_draw()
+            if box.expanded_button != self:
+                box.expanded_button.set_expanded(False)
+        box.expanded_button = self
 
 
 class ColorToolItem(ToolButton):

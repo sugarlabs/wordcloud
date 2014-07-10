@@ -38,14 +38,18 @@ LAYOUT_VERTICAL = 1
 LAYOUT_MOST_HORIZONTAL = 2
 LAYOUT_MOST_VERTICAL = 3
 LAYOUT_MIX = 4
+LAYOUT_FORTYFIVE = 5
+LAYOUT_RANDOM = 6
 
 LAYOUTS = (
-           LAYOUT_HORIZONTAL,
-           LAYOUT_VERTICAL,
-           LAYOUT_MOST_HORIZONTAL,
-           LAYOUT_MOST_VERTICAL,
-           LAYOUT_MIX
-           )
+    LAYOUT_HORIZONTAL,
+    LAYOUT_VERTICAL,
+    LAYOUT_MOST_HORIZONTAL,
+    LAYOUT_MOST_VERTICAL,
+    LAYOUT_MIX,
+    LAYOUT_FORTYFIVE,
+    LAYOUT_RANDOM
+)
 
 LAST_COLLISON_HIT = None
 
@@ -297,7 +301,14 @@ def _draw_cloud(
             angle = 90
         elif layout == LAYOUT_VERTICAL:
             angle = 90
-        
+        elif layout == LAYOUT_FORTYFIVE:
+            if randint(0, 2) == 0:
+                angle = 45
+            else:
+                angle = 315
+        elif layout == LAYOUT_RANDOM:
+            angle = randint(0, 90)
+
         tag_sprite.rotate(angle)
 
         xpos = canvas.width - tag_sprite.rect.width
