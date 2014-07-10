@@ -53,6 +53,7 @@ LAYOUTS = (
 
 LAST_COLLISON_HIT = None
 
+
 class Tag(Sprite):
     """
     Font tag sprite. Blit the font to a surface to correct the font padding
@@ -103,6 +104,7 @@ class Tag(Sprite):
         self.font = font.Font(os.path.join(FONT_DIR, self.font_spec['ttf']),
                               self.tag['size'])
         
+
 def load_font(name):
     for font in FONT_CACHE:
         if font['name'].encode('utf-8') == name.encode('utf-8'):
@@ -117,6 +119,7 @@ def defscale(count, mincount, maxcount, minsize, maxsize):
     return int(minsize + (maxsize - minsize) * 
                (count * 1.0 / (maxcount - mincount)) ** 0.8)
 
+
 def make_tags(wordcounts, minsize=3, maxsize=36, colors=None, scalef=defscale):
     """
     sizes and colors tags 
@@ -124,7 +127,8 @@ def make_tags(wordcounts, minsize=3, maxsize=36, colors=None, scalef=defscale):
     word appears in a text)
     the tags are assigned sizes between minsize and maxsize, the function used
     is determined by scalef (default: square root)
-    color is either chosen from colors (list of rgb tuples) if provided or random
+    color is either chosen from colors (list of rgb tuples) if provided or
+    random
     """
     counts = [tag[1] for tag in wordcounts]
     
@@ -135,12 +139,15 @@ def make_tags(wordcounts, minsize=3, maxsize=36, colors=None, scalef=defscale):
     mincount = min(counts)
     tags = []
     for word_count in wordcounts:
-        color = choice(colors) if colors else (randint(10, 220), randint(10, 220),
+        color = choice(colors) if colors else (randint(10, 220),
+                                               randint(10, 220),
                                                randint(10, 220))
-        tags.append({'color': color, 'size': scalef(word_count[1], mincount,
-                                                    maxcount, minsize, maxsize),
+        tags.append({'color': color,
+                     'size': scalef(word_count[1], mincount,
+                                    maxcount, minsize, maxsize),
                      'tag': word_count[0]})
     return tags
+
 
 def _do_collide(sprite, group):
     """
@@ -157,12 +164,14 @@ def _do_collide(sprite, group):
             return True
     return False
 
+
 def _get_tags_bounding(tag_store):
     if not len(tag_store):
         return Rect(0,0,0,0)
     rects = [tag.rect for tag in tag_store]
     return rects[0].unionall(rects[1:])
         
+
 def _get_group_bounding(tag_store, sizeRect):
     if not isinstance(sizeRect, pygame.Rect):
         sizeRect = Rect(0, 0, sizeRect[0], sizeRect[1])
@@ -173,6 +182,7 @@ def _get_group_bounding(tag_store, sizeRect):
             return union
     return sizeRect
 
+
 def _archimedean_spiral(reverse):
     DEFAULT_STEP = 0.05 # radians
     t = 0
@@ -182,6 +192,7 @@ def _archimedean_spiral(reverse):
     while True:
         t += DEFAULT_STEP * STEP_SIZE * r
         yield (ECCENTRICITY * RADIUS * t * cos(t), RADIUS * t * sin(t))
+
 
 def _rectangular_spiral(reverse):
     DEFAULT_STEP = 3 # px
@@ -200,6 +211,7 @@ def _rectangular_spiral(reverse):
             dy += direction[1] * STEP_SIZE * DEFAULT_STEP
             yield dx, dy
         spl += 1
+
 
 def _search_place(current_tag, tag_store, canvas, spiral, ratio):
     """
@@ -234,7 +246,8 @@ def _search_place(current_tag, tag_store, canvas, spiral, ratio):
                     min_dist = current_dist
                 
                 # only add tag if the spiral covered the canvas boundaries
-                if abs(dx) > canvas.width / 2.0 and abs(dy) > canvas.height / 2.0:
+                if abs(dx) > canvas.width / 2.0 and \
+                   abs(dy) > canvas.height / 2.0:
                     current_tag.rect.x = opt_x                    
                     current_tag.rect.y = opt_y                    
                     tag_store.add(current_tag)
@@ -261,10 +274,9 @@ def _search_place(current_tag, tag_store, canvas, spiral, ratio):
                         tag.rect.x += delta_x / 2.0
                         tag.rect.y += delta_y / 2.0
                     
-                    
                     canvas = _get_tags_bounding(tag_store)
-                               
                     return  
+
 
 def _draw_cloud(
         tag_list,
@@ -321,7 +333,8 @@ def _draw_cloud(
         ypos = randint(int(ypos * LOWER_START), int(ypos * UPPER_START))
         tag_sprite.rect.y = ypos
 
-        _search_place(tag_sprite, aligned_tags, canvas, spiral, ratio)            
+        _search_place(tag_sprite, aligned_tags, canvas, spiral, ratio)   
+
     canvas = _get_tags_bounding(aligned_tags)
     
     # resize cloud
@@ -338,6 +351,7 @@ def _draw_cloud(
     canvas = _get_tags_bounding(aligned_tags)
     
     return canvas, aligned_tags
+
 
 def create_tag_image(
         tags, 
@@ -360,11 +374,22 @@ def create_tag_image(
                                       fontname=fontname,
                                       rectangular=rectangular)
     
-    image_surface = Surface((sizeRect.w, sizeRect.h), SRCALPHA, 32)
-    image_surface.fill(background)
+
+    tag_surface = Surface((sizeRect.w, sizeRect.h), SRCALPHA, 32)
+    tag_surface.fill(background)
     for tag in tag_store:
-        image_surface.blit(tag.image, tag.rect)
-    pygame.image.save(image_surface, output)
+        tag_surface.blit(tag.image, tag.rect)
+    tag_surface = pygame.transform.scale(tag_surface,
+                                         (int(sizeRect.w * 0.9),
+                                          int(sizeRect.h * 0.9)))
+
+    xo = int(sizeRect.w * 0.05)
+    yo = int(sizeRect.h * 0.05)
+    output_surface = Surface((sizeRect.w, sizeRect.h), SRCALPHA, 32)
+    output_surface.fill(background)
+    output_surface.blit(tag_surface, (xo, yo))
+    pygame.image.save(output_surface, output)
+
 
 def create_html_data(tags, 
         size=(500,500), 
@@ -410,7 +435,9 @@ def create_html_data(tags,
     for stag in tag_store:
         line_offset = 0
         
-        line_offset = stag.font.get_linesize() - (stag.font.get_ascent() +  abs(stag.font.get_descent()) - stag.rect.height) - 4
+        line_offset = stag.font.get_linesize() - \
+                      (stag.font.get_ascent() + abs(stag.font.get_descent()) -
+                       stag.rect.height) - 4
         
         tag = {
                'tag': stag.tag['tag'],
