@@ -1,5 +1,10 @@
 NEWS
 
+4
+ENHANCEMENTS:
+* Add layout options: horizontal, vertical, mixed
+* New icons
+
 3
 BUG FIX:
 * Fixed font menu palette
