@@ -361,7 +361,7 @@ def _draw_cloud(
         tag.update_fontsize() 
     
     canvas = _get_tags_bounding(aligned_tags)
-]
+
     # Add some padding
     canvas.width += 120
     canvas.height += 120
