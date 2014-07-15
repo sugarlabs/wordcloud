@@ -78,8 +78,9 @@ class WordCloudActivity(activity.Activity):
         self.max_participants = 1  # No sharing
         self._font_name = None
         self._layout = LAYOUT_RANDOM
-        self._color_scheme = COLOR_SCHEMES['audacity']
-        self._colors = profile.get_color().to_string().split(',')
+        self._xo_colors = (_rgb(profile.get_color().to_string().split(',')[0]),
+                           _rgb(profile.get_color().to_string().split(',')[1]))
+        self._color_scheme = self._xo_colors
         self._repeat_tags = False
 
         self._toolbox = ToolbarBox()
@@ -278,8 +279,7 @@ class WordCloudActivity(activity.Activity):
         if color == _('random'):
             self._color_scheme = None
         elif color == 'XO':
-            logging.error(self._colors)
-            self._color_scheme = (_rgb(self._colors[0]), _rgb(self._colors[1]))
+            self._color_scheme = self._xo_colors
         else:
             self._color_scheme = COLOR_SCHEMES[color]
         return
