@@ -62,6 +62,11 @@ _TEXT = _('Type your text here and then click on the start button. '
           'Your word cloud will be saved to the Journal.')
 
 
+def _rgb(color):
+    ''' extracts (r, g, b) from Sugar color'''
+    return (int(color[1:3], 16), int(color[3:5], 16), int(color[5:7], 16))
+
+
 class WordCloudActivity(activity.Activity):
 
     def __init__(self, handle):
@@ -74,6 +79,7 @@ class WordCloudActivity(activity.Activity):
         self._font_name = None
         self._layout = LAYOUT_RANDOM
         self._color_scheme = COLOR_SCHEMES['audacity']
+        self._colors = profile.get_color().to_string().split(',')
         self._repeat_tags = False
 
         self._toolbox = ToolbarBox()
@@ -262,11 +268,18 @@ class WordCloudActivity(activity.Activity):
         palette_list.append({'icon': ColorImage('random'),
                              'callback': self.__color_selected_cb,
                              'label': _('random')})
+
+        palette_list.append({'icon': ColorImage('xo'),
+                             'callback': self.__color_selected_cb,
+                             'label': 'XO'})
         return palette_list
 
     def __color_selected_cb(self, widget, event, color):
         if color == _('random'):
             self._color_scheme = None
+        elif color == 'XO':
+            logging.error(self._colors)
+            self._color_scheme = (_rgb(self._colors[0]), _rgb(self._colors[1]))
         else:
             self._color_scheme = COLOR_SCHEMES[color]
         return
