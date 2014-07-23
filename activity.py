@@ -172,10 +172,23 @@ class WordCloudActivity(activity.Activity):
         self._toolbox.toolbar.insert(stop_button, -1)
         stop_button.show()
 
-        image = Gtk.Image.new_from_file(os.path.join(
+        self._show_image(os.path.join(
             activity.get_bundle_path(), 'WordCloud.png'))
-        self.set_canvas(image)
+
+    def _show_image(self, path):
+        image = Gtk.Image.new_from_file(path)
+        align = Gtk.Alignment.new(xalign=0.5, yalign=0.5, xscale=1.0,
+                                  yscale=1.0)
+        align.add(image)
         image.show()
+        evbox = Gtk.EventBox()
+        evbox.set_size_request(Gdk.Screen.width(), Gdk.Screen.height())
+        evbox.modify_bg(
+            Gtk.StateType.NORMAL, style.COLOR_WHITE.get_gdk_color())
+        evbox.add(align)
+        align.show()
+        self.set_canvas(evbox)
+        evbox.show()
 
     def __realize_cb(self, window):
         self.window_xid = window.get_window().get_xid()
@@ -209,6 +222,7 @@ class WordCloudActivity(activity.Activity):
         path = os.path.join(activity.get_activity_root(), 'tmp',
                             'cloud_large.png')
 
+        logging.error('CREATE TAG IMAGE')
         if self._font_name is not None:
             create_tag_image(tags, path, layout=self._layout,
                              size=(Gdk.Screen.width(), Gdk.Screen.height()),
@@ -219,9 +233,7 @@ class WordCloudActivity(activity.Activity):
 
         self.get_window().set_cursor(Gdk.Cursor.new(Gdk.CursorType.LEFT_PTR))
 
-        image = Gtk.Image.new_from_file(path)
-        self.set_canvas(image)
-        image.show()
+        self._show_image(path)
 
         dsobject = datastore.create()
         dsobject.metadata['title'] = _('Word Cloud')
