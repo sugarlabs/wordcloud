@@ -8,6 +8,7 @@ import colorsys
 import os
 import pygame
 import json
+import logging
 
 
 TAG_PADDING = 5
@@ -24,7 +25,7 @@ DEFAULT_PALETTE = 'default'
 fd = open(os.path.join(FONT_DIR, 'fonts.json'), 'r')
 FONT_CACHE = json.loads(fd.read())
 
-pygame.init()
+# pygame.init()
 
 convsurf = Surface((2 * TAG_PADDING, 2 * TAG_PADDING))
 convsurf.fill((255, 0, 255))
@@ -53,6 +54,30 @@ LAYOUTS = (
 LAST_COLLISON_HIT = None
 
 
+'''
+cloud_canvas = None
+
+
+def get_cloud_cr(canvas=None):
+    global cloud_canvas
+
+    if cloud_canvas is None:
+        cr = canvas.get_property('window').cairo_create()
+        canvas.connect('draw', self.__draw_cb)
+
+        cloud_canvas = cr.get_target().create_similar(
+            cairo.CONTENT_COLOR, size, size)
+
+    _cr = cairo.Context(cloud_canvas)
+    return _cr
+'''
+
+
+def __draw_cb(self, canvas, cr):
+        cr.set_source_surface(cloud_canvas)
+        cr.paint()
+
+
 class Tag(Sprite):
     """
     Font tag sprite. Blit the font to a surface to correct the font padding
@@ -67,8 +92,7 @@ class Tag(Sprite):
                                            self.font_spec['ttf']),
                               self.tag['size'])
         # fonter = self.font.render(unicode(tag['tag'], 'UTF-8'), True,
-        fonter = self.font.render(tag['tag'], True,
-                                  tag['color'])
+        fonter = self.font.render(tag['tag'], True, tag['color'])
         frect = fonter.get_bounding_rect()
         frect.x = -frect.x
         frect.y = -frect.y
@@ -145,6 +169,8 @@ def make_tags(wordcounts, minsize=3, maxsize=36, colors=None, scalef=defscale):
                      'size': scalef(word_count[1], mincount,
                                     maxcount, minsize, maxsize),
                      'tag': word_count[0]})
+    logging.error('tag count=%d' % len(tags))
+    logging.error(tags)
     return tags
 
 
@@ -307,17 +333,17 @@ def _draw_cloud(tag_list,
     aligned_tags = Group()
     for tag_sprite in tag_sprites:
         angle = 0
-        if layout == LAYOUT_MIX and randint(0, 2) == 0:
+        if layout == LAYOUT_MIX and randint(0, 1) == 0:
             angle = 90
         elif layout == LAYOUT_VERTICAL:
             angle = 90
         elif layout == LAYOUT_FORTYFIVE:
-            if randint(0, 2) == 0:
+            if randint(0, 1) == 0:
                 angle = 45
             else:
                 angle = 315
         elif layout == LAYOUT_RANDOM:
-            angle = randint(0, 90)
+            angle = randint(0, 89)
 
         tag_sprite.rotate(angle)
 
@@ -340,7 +366,7 @@ def _draw_cloud(tag_list,
     # resize cloud
     zoom = min(float(size[0]) / canvas.w, float(size[1]) / canvas.h)
 
-    print 'zoom', zoom
+    logging.debug('zoom %f' % zoom)
     cw = int(canvas.w * zoom)
     ch = int(canvas.h * zoom)
 
@@ -351,10 +377,8 @@ def _draw_cloud(tag_list,
         tag.rect.height *= zoom
 
         if tag.rect.x + tag.rect.width > cw:
-            print 'shifting x'
             tag.rect.x = cw - tag.rect.width
         if tag.rect.y + tag.rect.height > ch:
-            print 'shifting y'
             tag.rect.y = ch - tag.rect.height
 
         tag.tag['size'] = int(tag.tag['size'] * zoom)
@@ -384,6 +408,8 @@ def create_tag_image(
     if not len(tags):
         return
 
+    pygame.init()
+
     sizeRect, tag_store = _draw_cloud(tags,
                                       layout,
                                       size=size,
@@ -404,6 +430,8 @@ def create_tag_image(
     output_surface.fill(background)
     output_surface.blit(tag_surface, (xo, yo))
     pygame.image.save(output_surface, output)
+
+    pygame.quit()
 
 
 def create_html_data(tags,

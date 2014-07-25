@@ -48,8 +48,14 @@
       </tspan>
     </text>
   </g>
-  <path
-     d="m 34.507576,30.608092 4.024651,3.905671 2.365935,-5.012396 m -17.546219,5.311044 c -1.749215,-0.09615 -2.377193,-2.212702 -1.916325,-3.633549 0.824389,-2.541564 3.923512,-3.334874 6.196944,-2.339409 3.336351,1.460884 4.316109,5.655785 2.762491,8.760336 -2.070723,4.137878 -7.39545,5.307094 -11.323728,3.185578 -4.943339,-2.669713 -6.303064,-9.138583 -3.608663,-13.887124 3.26328,-5.75112 10.883656,-7.301907 16.450519,-4.031747 4.085498,2.399959 6.582977,6.742257 6.568543,11.4543"
-     id="path2996"
-     style="fill:none;stroke:#000000;stroke-width:3.20367694;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+  <text
+     x="40.90625"
+     y="42.5"
+     id="text2988"
+     xml:space="preserve"
+     style="font-size:16px;font-style:normal;font-weight:normal;text-align:end;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:end;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"><tspan
+       x="40.90625"
+       y="42.5"
+       id="tspan2990"
+       style="font-size:32px;font-weight:bold;-inkscape-font-specification:Sans Bold">+</tspan></text>
 </svg>

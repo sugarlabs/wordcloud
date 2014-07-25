@@ -118,6 +118,22 @@ class WordCloudActivity(activity.Activity):
         self._paste_button.connect('clicked', self._paste_cb)
         self._paste_button.set_sensitive(False)
 
+        go_button = ToolButton('generate-cloud')
+        self._toolbox.toolbar.insert(go_button, -1)
+        go_button.set_tooltip(_('Create the cloud'))
+        go_button.show()
+        go_button.connect('clicked', self._go_cb)
+
+        self._text_item = TextItem(self)
+        self._toolbox.toolbar.insert(self._text_item, -1)
+        self._text_item.show()
+
+        self._repeat_button = ToggleToolButton('repeat-cloud')
+        self._toolbox.toolbar.insert(self._repeat_button, -1)
+        self._repeat_button.set_tooltip(_('Repeat words'))
+        self._repeat_button.show()
+        self._repeat_button.connect('clicked', self._repeat_cb)
+
         self.font_palette_content = set_palette_list(
             self._setup_font_palette(), 3, 7,
             style.SMALL_ICON_SIZE + style.DEFAULT_SPACING +
@@ -145,22 +161,6 @@ class WordCloudActivity(activity.Activity):
         self._toolbox.toolbar.insert(self._layout_button, -1)
         self._layout_button.show()
         
-        self._repeat_button = ToggleToolButton('repeat-cloud')
-        self._toolbox.toolbar.insert(self._repeat_button, -1)
-        self._repeat_button.set_tooltip(_('Repeat words'))
-        self._repeat_button.show()
-        self._repeat_button.connect('clicked', self._repeat_cb)
-
-        self._text_item = TextItem(self)
-        self._toolbox.toolbar.insert(self._text_item, -1)
-        self._text_item.show()
-
-        go_button = ToolButton('generate-cloud')
-        self._toolbox.toolbar.insert(go_button, -1)
-        go_button.set_tooltip(_('Create the cloud'))
-        go_button.show()
-        go_button.connect('clicked', self._go_cb)
-
         separator = Gtk.SeparatorToolItem()
         separator.props.draw = False
         separator.set_expand(True)
