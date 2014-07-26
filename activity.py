@@ -144,7 +144,7 @@ class WordCloudActivity(activity.Activity):
         self._font_button.show()
 
         self.color_palette_content = set_palette_list(
-            self._setup_color_palette(), 1, 5,
+            self._setup_color_palette(), 3, 3,
             style.GRID_CELL_SIZE + style.DEFAULT_SPACING +
             style.DEFAULT_PADDING)
         self._color_button = ColorToolItem(self)
