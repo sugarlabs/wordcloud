@@ -273,18 +273,17 @@ class WordCloudActivity(activity.Activity):
 
     def _setup_color_palette(self):
         palette_list = []
+        palette_list.append({'icon': ColorImage('xo'),
+                             'callback': self.__color_selected_cb,
+                             'label': 'XO'})
         for color in COLOR_SCHEMES.keys():
             palette_list.append({'icon': ColorImage(color),
                                  'callback': self.__color_selected_cb,
                                  'label': color})
-
         palette_list.append({'icon': ColorImage('random'),
                              'callback': self.__color_selected_cb,
                              'label': _('random')})
 
-        palette_list.append({'icon': ColorImage('xo'),
-                             'callback': self.__color_selected_cb,
-                             'label': 'XO'})
         return palette_list
 
     def __color_selected_cb(self, widget, event, color):
