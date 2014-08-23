@@ -62,9 +62,68 @@ _TEXT = _('Type your text here and then click on the start button. '
           'Your word cloud will be saved to the Journal.')
 
 
+def _hex(color):
+    ''' created a #RRGGBB from a (r, g, b) color '''
+    return '#%02x%02x%02x' % (color)
+
+
 def _rgb(color):
     ''' extracts (r, g, b) from Sugar color'''
     return (int(color[1:3], 16), int(color[3:5], 16), int(color[5:7], 16))
+
+
+def _color_icon(colors):
+    ''' returns a pixbuf for a color icon '''
+    svg = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n' \
+          '<svg\n' \
+          'xmlns:dc="http://purl.org/dc/elements/1.1/"\n' \
+          'xmlns:cc="http://creativecommons.org/ns#"\n' \
+          'version="1.1"\n' \
+          'width="55"\n' \
+          'height="55">\n' \
+          '<rect\n' \
+          'width="11"\n' \
+          'height="55"\n' \
+          'x="0"\n' \
+          'y="0"\n' \
+          'style="fill:%s;fill-opacity:1;fill-rule:nonzero;stroke:none" />\n' \
+          '<rect\n' \
+          'width="11"\n' \
+          'height="55"\n' \
+          'x="11"\n' \
+          'y="0"\n' \
+          'style="fill:%s;fill-opacity:1;fill-rule:nonzero;stroke:none" />\n' \
+          '<rect\n' \
+          'width="11"\n' \
+          'height="55"\n' \
+          'x="22"\n' \
+          'y="0"\n' \
+          'style="fill:%s;fill-opacity:1;fill-rule:nonzero;stroke:none" />\n' \
+          '<rect\n' \
+          'width="11"\n' \
+          'height="55"\n' \
+          'x="33"\n' \
+          'y="0"\n' \
+          'style="fill:%s;fill-opacity:1;fill-rule:nonzero;stroke:none" />\n' \
+          '<rect\n' \
+          'width="11"\n' \
+          'height="55"\n' \
+          'x="44"\n' \
+          'y="0"\n' \
+          'style="fill:%s;fill-opacity:1;fill-rule:nonzero;stroke:none" />\n' \
+          '</svg>' % (_hex(colors[0]), _hex(colors[1]), _hex(colors[2]),
+                      _hex(colors[3]), _hex(colors[4]))
+    pixbuf = svg_str_to_pixbuf(svg)
+    return pixbuf
+
+
+def svg_str_to_pixbuf(string):
+    ''' Load pixbuf from SVG string '''
+    pl = GdkPixbuf.PixbufLoader.new_with_type('svg')
+    pl.write(string)
+    pl.close()
+    pixbuf = pl.get_pixbuf()
+    return pixbuf
 
 
 class WordCloudActivity(activity.Activity):
@@ -151,7 +210,7 @@ class WordCloudActivity(activity.Activity):
         self.color_palette_content.show()
         self._toolbox.toolbar.insert(self._color_button, -1)
         self._color_button.show()
-        
+
         self.layout_palette_content = set_palette_list(
             self._setup_layout_palette(), 1, 5,
             style.GRID_CELL_SIZE + style.DEFAULT_SPACING +
@@ -160,7 +219,7 @@ class WordCloudActivity(activity.Activity):
         self.layout_palette_content.show()
         self._toolbox.toolbar.insert(self._layout_button, -1)
         self._layout_button.show()
-        
+
         separator = Gtk.SeparatorToolItem()
         separator.props.draw = False
         separator.set_expand(True)
@@ -277,7 +336,7 @@ class WordCloudActivity(activity.Activity):
                              'callback': self.__color_selected_cb,
                              'label': 'XO'})
         for color in COLOR_SCHEMES.keys():
-            palette_list.append({'icon': ColorImage(color),
+            palette_list.append({'icon': ColorIcon(COLOR_SCHEMES[color]),
                                  'callback': self.__color_selected_cb,
                                  'label': color})
         palette_list.append({'icon': ColorImage('random'),
@@ -401,6 +460,16 @@ class ColorImage(Gtk.Image):
                             color_name + '.png')
         pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(
             path, style.GRID_CELL_SIZE, style.GRID_CELL_SIZE)
+        self.set_from_pixbuf(pixbuf)
+        self.show()
+
+
+class ColorIcon(Gtk.Image):
+
+    def __init__(self, colors):
+        super(Gtk.Image, self).__init__()
+
+        pixbuf = _color_icon(colors)
         self.set_from_pixbuf(pixbuf)
         self.show()
 
