@@ -30,18 +30,63 @@ import os
 import pygame
 from gi.repository import Gdk
 
+from StringIO import StringIO
+
+import json
+json.dumps
+from json import load as jload
+from json import dump as jdump
+
+
+def json_load(text):
+    """ Load JSON data using what ever resources are available. """
+    # strip out leading and trailing whitespace, nulls, and newlines
+    io = StringIO(text)
+    try:
+        listdata = jload(io)
+    except ValueError:
+        # assume that text is ascii list
+        listdata = text.split()
+        for i, value in enumerate(listdata):
+            listdata[i] = int(value)
+    return listdata
+
+
+def json_dump(data):
+    """ Save data using available JSON tools. """
+    _io = StringIO()
+    jdump(data, _io)
+    return _io.getvalue()
+
 
 class WordCloud():
 
     def __init__(self):
-        self._repeat_tags = True
-        self._layout = LAYOUT_MIX
-        self._font_name = None
-        self._color_scheme = ((59, 76, 76), (125, 140, 116), (217, 175, 95),
-                              (127, 92, 70), (51, 36, 35))
+        try:
+            fd = open('/tmp/cloud_data.txt', 'r')
+            data = fd.read()
+            fd.close()
+            cloud_dict = json_load(data)
+            self._repeat_tags = cloud_dict['repeat']
+            self._layout = cloud_dict['layout']
+            self._font_name = cloud_dict['font']
+            self._color_scheme = cloud_dict['colors']
+        except:
+            self._repeat_tags = False
+            self._layout = LAYOUT_MIX
+            self._font_name = None
+            self._color_scheme = ((241, 143, 0), (128, 186, 39),
+                                  (13, 147, 210), 
+                                  (231, 30, 108), (135, 135, 135))
+        try:
+            fd = open('/tmp/cloud_text.txt', 'r')
+            self._text = fd.read()
+            fd.close()
+        except:
+            self._text = 'Could not read cloud_text'
 
     def run(self):
-        self._create_image(_TEXT)
+        self._create_image(self._text)
 
     def _create_image(self, text):
         tag_counts = get_tag_counts(text)

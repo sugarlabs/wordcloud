@@ -18,6 +18,7 @@
  
 import os
 import logging
+import subprocess
 
 from gi.repository import Gtk
 from gi.repository import Gdk
@@ -60,6 +61,34 @@ LAYOUT_SCHEMES = {'horizontal': LAYOUT_HORIZONTAL,
 
 _TEXT = _('Type your text here and then click on the start button. '
           'Your word cloud will be saved to the Journal.')
+
+from StringIO import StringIO
+
+import json
+json.dumps
+from json import load as jload
+from json import dump as jdump
+
+
+def json_load(text):
+    """ Load JSON data using what ever resources are available. """
+    # strip out leading and trailing whitespace, nulls, and newlines
+    io = StringIO(text)
+    try:
+        listdata = jload(io)
+    except ValueError:
+        # assume that text is ascii list
+        listdata = text.split()
+        for i, value in enumerate(listdata):
+            listdata[i] = int(value)
+    return listdata
+
+
+def json_dump(data):
+    """ Save data using available JSON tools. """
+    _io = StringIO()
+    jdump(data, _io)
+    return _io.getvalue()
 
 
 def _hex(color):
@@ -264,6 +293,21 @@ class WordCloudActivity(activity.Activity):
             GObject.idle_add(self._create_image, text)
 
     def _create_image(self, text):
+        fd = open('/tmp/cloud_data.txt', 'w')
+        data = json_dump({'repeat': self._repeat_tags,
+                          'layout': self._layout,
+                          'font': self._font_name,
+                          'colors': self._color_scheme})
+        fd.write(data)
+        fd.close()
+        fd = open('/tmp/cloud_text.txt', 'w')
+        fd.write(text)
+        fd.close()
+        path = os.path.join('/tmp/cloud_large.png')
+        subprocess.check_output(
+            [os.path.join(activity.get_bundle_path(), 'wordcloud.py')])
+
+        '''
         tag_counts = get_tag_counts(text)
 
         if self._repeat_tags:
@@ -289,6 +333,7 @@ class WordCloudActivity(activity.Activity):
         else:
             create_tag_image(tags, path, layout=self._layout,
                              size=(Gdk.Screen.width(), Gdk.Screen.height()))
+        '''
 
         self.get_window().set_cursor(Gdk.Cursor.new(Gdk.CursorType.LEFT_PTR))
 

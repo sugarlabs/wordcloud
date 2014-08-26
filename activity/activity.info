@@ -4,4 +4,5 @@ activity_version = 4
 bundle_id = org.sugarlabs.WordCloud
 exec = sugar-activity activity.WordCloudActivity
 icon = activity-wordcloud
+single_instance = yes
 license = GPLv3+
