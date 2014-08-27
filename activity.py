@@ -102,7 +102,7 @@ def _rgb(color):
     return (int(color[1:3], 16), int(color[3:5], 16), int(color[5:7], 16))
 
 
-def _color_icon(colors):
+def _color_icon(colors, selected=False):
     ''' returns a pixbuf for a color icon '''
     svg = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n' \
           '<svg\n' \
@@ -110,39 +110,57 @@ def _color_icon(colors):
           'xmlns:cc="http://creativecommons.org/ns#"\n' \
           'version="1.1"\n' \
           'width="55"\n' \
-          'height="55">\n' \
-          '<rect\n' \
-          'width="11"\n' \
-          'height="55"\n' \
-          'x="0"\n' \
-          'y="0"\n' \
-          'style="fill:%s;fill-opacity:1;fill-rule:nonzero;stroke:none" />\n' \
-          '<rect\n' \
-          'width="11"\n' \
-          'height="55"\n' \
-          'x="11"\n' \
-          'y="0"\n' \
-          'style="fill:%s;fill-opacity:1;fill-rule:nonzero;stroke:none" />\n' \
-          '<rect\n' \
-          'width="11"\n' \
-          'height="55"\n' \
-          'x="22"\n' \
-          'y="0"\n' \
-          'style="fill:%s;fill-opacity:1;fill-rule:nonzero;stroke:none" />\n' \
-          '<rect\n' \
-          'width="11"\n' \
-          'height="55"\n' \
-          'x="33"\n' \
-          'y="0"\n' \
-          'style="fill:%s;fill-opacity:1;fill-rule:nonzero;stroke:none" />\n' \
-          '<rect\n' \
-          'width="11"\n' \
-          'height="55"\n' \
-          'x="44"\n' \
-          'y="0"\n' \
-          'style="fill:%s;fill-opacity:1;fill-rule:nonzero;stroke:none" />\n' \
-          '</svg>' % (_hex(colors[0]), _hex(colors[1]), _hex(colors[2]),
-                      _hex(colors[3]), _hex(colors[4]))
+          'height="55">\n'
+
+    svg += '<rect\n' \
+        'width="11"\n' \
+        'height="55"\n' \
+        'x="0"\n' \
+        'y="0"\n' \
+        'style="fill:%s;fill-opacity:1;fill-rule:nonzero;stroke:none" />\n' \
+        '<rect\n' \
+        'width="11"\n' \
+        'height="55"\n' \
+        'x="11"\n' \
+        'y="0"\n' \
+        'style="fill:%s;fill-opacity:1;fill-rule:nonzero;stroke:none" />\n' \
+        '<rect\n' \
+        'width="11"\n' \
+        'height="55"\n' \
+        'x="22"\n' \
+        'y="0"\n' \
+        'style="fill:%s;fill-opacity:1;fill-rule:nonzero;stroke:none" />\n' \
+        '<rect\n' \
+        'width="11"\n' \
+        'height="55"\n' \
+        'x="33"\n' \
+        'y="0"\n' \
+        'style="fill:%s;fill-opacity:1;fill-rule:nonzero;stroke:none" />\n' \
+        '<rect\n' \
+        'width="11"\n' \
+        'height="55"\n' \
+        'x="44"\n' \
+        'y="0"\n' \
+        'style="fill:%s;fill-opacity:1;fill-rule:nonzero;stroke:none" />\n' \
+        % (_hex(colors[0]), _hex(colors[1]), _hex(colors[2]), _hex(colors[3]),
+           _hex(colors[4]))
+    svg += '<rect\n' \
+           'width="50"\n' \
+           'height="50"\n' \
+           'ry="0"\n' \
+           'x="2.5"\n' \
+           'y="2.5"\n' \
+           'style="stroke-width:5;stroke:#282828;fill:none" />\n'
+    if selected:
+        svg += '<rect\n' \
+               'width="50"\n' \
+               'height="50"\n' \
+               'ry="5"\n' \
+               'x="2.5"\n' \
+               'y="2.5"\n' \
+               'style="stroke-width:5;stroke:#a0a0a0;fill:none" />\n'
+    svg += '</svg>'
+
     pixbuf = svg_str_to_pixbuf(svg)
     return pixbuf
 
@@ -232,10 +250,11 @@ class WordCloudActivity(activity.Activity):
         self._toolbox.toolbar.insert(self._font_button, -1)
         self._font_button.show()
 
-        self.color_palette_content = set_palette_list(
-            self._setup_color_palette(), 3, 5,
-            style.GRID_CELL_SIZE + style.DEFAULT_SPACING +
-            style.DEFAULT_PADDING)
+        self.color_palette_content, self.color_palette_dict = \
+            set_palette_list(
+                self._setup_color_palette(), 3, 5,
+                style.GRID_CELL_SIZE + style.DEFAULT_SPACING +
+                style.DEFAULT_PADDING, return_dict=True)
         self._color_button = ColorToolItem(self)
         self.color_palette_content.show()
         self._toolbox.toolbar.insert(self._color_button, -1)
@@ -263,6 +282,8 @@ class WordCloudActivity(activity.Activity):
 
         self._show_image(os.path.join(
             activity.get_bundle_path(), 'WordCloud.png'))
+
+        self._set_color('XO')
 
         for layout in LAYOUT_SCHEMES.keys():
             if LAYOUT_SCHEMES[layout] == self._layout:
@@ -331,33 +352,6 @@ class WordCloudActivity(activity.Activity):
             alert.connect('response', self._remove_alert_cb)
             self.add_alert(alert)
             return
-        '''
-        tag_counts = get_tag_counts(text)
-
-        if self._repeat_tags:
-            expanded_tag_counts = []
-            i = 1
-            while len(expanded_tag_counts) < 25:
-                for tag in tag_counts:
-                    expanded_tag_counts.append((tag[0], i * 3 + 1))
-                    if not len(expanded_tag_counts) < 25:
-                        break
-                i += 1
-            tag_counts = expanded_tag_counts
-
-        tags = make_tags(tag_counts, maxsize=150, colors=self._color_scheme)
-        path = os.path.join(activity.get_activity_root(), 'tmp',
-                            'cloud_large.png')
-
-        logging.error('CREATE TAG IMAGE')
-        if self._font_name is not None:
-            create_tag_image(tags, path, layout=self._layout,
-                             size=(Gdk.Screen.width(), Gdk.Screen.height()),
-                             fontname=self._font_name)
-        else:
-            create_tag_image(tags, path, layout=self._layout,
-                             size=(Gdk.Screen.width(), Gdk.Screen.height()))
-        '''
 
         self.get_window().set_cursor(Gdk.Cursor.new(Gdk.CursorType.LEFT_PTR))
 
@@ -406,19 +400,24 @@ class WordCloudActivity(activity.Activity):
     def _setup_color_palette(self):
         palette_list = []
         palette_list.append({'icon': ColorImage('xo'),
+                             'selected': ColorImage('xo', selected=True),
                              'callback': self.__color_selected_cb,
                              'label': 'XO'})
         for color in COLOR_SCHEMES.keys():
             palette_list.append({'icon': ColorIcon(COLOR_SCHEMES[color]),
+                                 'selected': ColorIcon(
+                                     COLOR_SCHEMES[color], selected=True),
                                  'callback': self.__color_selected_cb,
                                  'label': color})
         palette_list.append({'icon': ColorImage('random'),
+                             'selected': ColorImage('random', selected=True),
                              'callback': self.__color_selected_cb,
                              'label': _('random')})
 
         return palette_list
 
     def __color_selected_cb(self, widget, event, color):
+        self._set_color(color)
         if color == _('random'):
             self._color_scheme = None
         elif color == 'XO':
@@ -426,6 +425,15 @@ class WordCloudActivity(activity.Activity):
         else:
             self._color_scheme = COLOR_SCHEMES[color]
         return
+
+    def _set_color(self, color):
+        for entry in self.color_palette_dict.keys():
+            if entry == color:
+                self.color_palette_dict[entry]['icon'].hide()
+                self.color_palette_dict[entry]['selected'].show()
+            else:
+                self.color_palette_dict[entry]['icon'].show()
+                self.color_palette_dict[entry]['selected'].hide()
 
     def _setup_layout_palette(self):
         palette_list = []
@@ -538,11 +546,15 @@ class FontImage(Gtk.Image):
 
 class ColorImage(Gtk.Image):
 
-    def __init__(self, color_name):
+    def __init__(self, color_name, selected=False):
         super(Gtk.Image, self).__init__()
 
-        path = os.path.join(activity.get_bundle_path(), 'colors',
-                            color_name + '.png')
+        if selected:
+            path = os.path.join(activity.get_bundle_path(), 'colors',
+                                color_name + '-selected.png')
+        else:
+            path = os.path.join(activity.get_bundle_path(), 'colors',
+                                color_name + '.png')
         pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(
             path, style.GRID_CELL_SIZE, style.GRID_CELL_SIZE)
         self.set_from_pixbuf(pixbuf)
@@ -551,10 +563,10 @@ class ColorImage(Gtk.Image):
 
 class ColorIcon(Gtk.Image):
 
-    def __init__(self, colors):
+    def __init__(self, colors, selected=False):
         super(Gtk.Image, self).__init__()
 
-        pixbuf = _color_icon(colors)
+        pixbuf = _color_icon(colors, selected=selected)
         self.set_from_pixbuf(pixbuf)
         self.show()
 
