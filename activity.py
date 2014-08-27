@@ -307,10 +307,13 @@ class WordCloudActivity(activity.Activity):
         try:
             return_code = subprocess.check_call(
                 [os.path.join(activity.get_bundle_path(), 'wordcloud.py')])
-        except subprocess.CalledProcessError, e:
+        except subprocess.CalledProcessError as e:
             logging.error(e)
             self.get_window().set_cursor(
                 Gdk.Cursor.new(Gdk.CursorType.LEFT_PTR))
+            logging.error(e.returncode)
+            if e.returncode == 255:
+                logging.error('STOP WORD ERROR')
             return  # some sort of alert
         '''
         tag_counts = get_tag_counts(text)
