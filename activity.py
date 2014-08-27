@@ -241,14 +241,16 @@ class WordCloudActivity(activity.Activity):
         self._toolbox.toolbar.insert(self._color_button, -1)
         self._color_button.show()
 
-        self.layout_palette_content = set_palette_list(
-            self._setup_layout_palette(), 1, 5,
-            style.GRID_CELL_SIZE + style.DEFAULT_SPACING +
-            style.DEFAULT_PADDING)
+        self.layout_palette_content, self.layout_palette_dict = \
+            set_palette_list(self._setup_layout_palette(), 1, 5,
+                             style.GRID_CELL_SIZE + style.DEFAULT_SPACING +
+                             style.DEFAULT_PADDING, return_dict=True)
         self._layout_button = LayoutToolItem(self)
         self.layout_palette_content.show()
         self._toolbox.toolbar.insert(self._layout_button, -1)
         self._layout_button.show()
+
+        self._set_layout(self._layout)
 
         separator = Gtk.SeparatorToolItem()
         separator.props.draw = False
@@ -426,12 +428,24 @@ class WordCloudActivity(activity.Activity):
         palette_list = []
         for layout in LAYOUT_SCHEMES.keys():
             palette_list.append({'icon': LayoutImage(layout),
+                                 'selected': LayoutImage(layout,
+                                                         selected=True),
                                  'callback': self.__layout_selected_cb,
                                  'label': layout})
         return palette_list
 
     def __layout_selected_cb(self, widget, event, layout):
+        self._set_layout(layout)
         self._layout = LAYOUT_SCHEMES[layout]
+
+    def _set_layout(self, layout):
+        for entry in self.layout_palette_dict.keys():
+            if entry == layout:
+                self.layout_palette_dict[entry]['icon'].hide()
+                self.layout_palette_dict[entry]['selected'].show()
+            else:
+                self.layout_palette_dict[entry]['icon'].show()
+                self.layout_palette_dict[entry]['selected'].hide()
 
 
 class TextItem(ToolButton):
@@ -544,11 +558,15 @@ class ColorIcon(Gtk.Image):
 
 class LayoutImage(Gtk.Image):
 
-    def __init__(self, layout_name):
+    def __init__(self, layout_name, selected=False):
         super(Gtk.Image, self).__init__()
 
-        path = os.path.join(activity.get_bundle_path(), 'layouts',
-                            'format-' + layout_name + '.png')
+        if selected:
+            path = os.path.join(activity.get_bundle_path(), 'layouts',
+                                'format-' + layout_name + '-selected.png')
+        else:
+            path = os.path.join(activity.get_bundle_path(), 'layouts',
+                                'format-' + layout_name + '.png')
         pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(
             path, style.GRID_CELL_SIZE, style.GRID_CELL_SIZE)
         self.set_from_pixbuf(pixbuf)
@@ -684,7 +702,8 @@ class FontToolItem(ToolButton):
         box.expanded_button = self
 
 
-def set_palette_list(palette_list, nx, ny, item_height):
+def set_palette_list(palette_list, nx, ny, item_height, return_dict=False):
+    palette_dict = {}
     item_width = style.GRID_CELL_SIZE * 3
 
     grid = Gtk.Grid()
@@ -707,6 +726,14 @@ def set_palette_list(palette_list, nx, ny, item_height):
         menu_item.set_label(item['label'])
         menu_item.set_image(item['icon'])
         item['icon'].show()
+        if return_dict:
+            menu_item.set_image(item['selected'])
+            item['selected'].hide()
+
+        if return_dict:
+            palette_dict[item['label']] = {'menu': menu_item,
+                                           'icon': item['icon'],
+                                           'selected': item['selected']}
 
         menu_item.connect('button-release-event', item['callback'],
                           item['label'])
@@ -718,4 +745,7 @@ def set_palette_list(palette_list, nx, ny, item_height):
 
         menu_item.show()
 
-    return scrolled_window
+    if return_dict:
+        return scrolled_window, palette_dict
+    else:
+        return scrolled_window
