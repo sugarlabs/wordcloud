@@ -250,8 +250,6 @@ class WordCloudActivity(activity.Activity):
         self._toolbox.toolbar.insert(self._layout_button, -1)
         self._layout_button.show()
 
-        self._set_layout(self._layout)
-
         separator = Gtk.SeparatorToolItem()
         separator.props.draw = False
         separator.set_expand(True)
@@ -265,6 +263,11 @@ class WordCloudActivity(activity.Activity):
 
         self._show_image(os.path.join(
             activity.get_bundle_path(), 'WordCloud.png'))
+
+        for layout in LAYOUT_SCHEMES.keys():
+            if LAYOUT_SCHEMES[layout] == self._layout:
+                self._set_layout(layout)
+                break
 
     def _show_image(self, path):
         image = Gtk.Image.new_from_file(path)
