@@ -44,6 +44,7 @@ from sugar3.graphics import style
 from sugar3.graphics.xocolor import XoColor
 from sugar3.graphics.palette import Palette
 from sugar3.datastore import datastore
+from sugar3.graphics.alert import NotifyAlert
 from sugar3 import profile
 from sugar3 import env
 
@@ -308,13 +309,23 @@ class WordCloudActivity(activity.Activity):
             return_code = subprocess.check_call(
                 [os.path.join(activity.get_bundle_path(), 'wordcloud.py')])
         except subprocess.CalledProcessError as e:
-            logging.error(e)
             self.get_window().set_cursor(
                 Gdk.Cursor.new(Gdk.CursorType.LEFT_PTR))
+            alert = NotifyAlert(5)
+            alert.props.title = _('WordCloud error')
+            logging.error(e)
             logging.error(e.returncode)
             if e.returncode == 255:
                 logging.error('STOP WORD ERROR')
-            return  # some sort of alert
+                MESSAGE = _('All of your words are "stop words."'
+                            ' Please try adding more words.')
+            else:
+                logging.error('MEMORY ERROR')
+                MESSAGE = _('There was a problem. Please try again.')
+            alert.props.msg = MESSAGE
+            alert.connect('response', self._remove_alert_cb)
+            self.add_alert(alert)
+            return
         '''
         tag_counts = get_tag_counts(text)
 
@@ -354,6 +365,9 @@ class WordCloudActivity(activity.Activity):
         dsobject.set_file_path(path)
         datastore.write(dsobject)
         dsobject.destroy()
+
+    def _remove_alert_cb(self, alert, response_id):
+        self.remove_alert(alert)
 
     def _copy_cb(self, button):
         clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
