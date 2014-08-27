@@ -90,6 +90,9 @@ class WordCloud():
 
     def _create_image(self, text):
         tag_counts = get_tag_counts(text)
+        if tag_counts is None:
+            print('ONLY FOUND STOP WORDS')
+            sys.exit(-1)
 
         if self._repeat_tags:
             expanded_tag_counts = []
@@ -113,6 +116,7 @@ class WordCloud():
         else:
             create_tag_image(tags, path, layout=self._layout,
                              size=(Gdk.Screen.width(), Gdk.Screen.height()))
+        return 0
 
 
 if __name__ == "__main__":

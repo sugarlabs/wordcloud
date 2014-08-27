@@ -32,5 +32,7 @@ def get_tag_counts(text):
             else: 
                 counted[word] = 1
       
-    return sorted(counted.iteritems(), key=itemgetter(1), reverse=True)
-    
+    if len(counted.keys()) == 0:
+        return None
+    else:
+        return sorted(counted.iteritems(), key=itemgetter(1), reverse=True)

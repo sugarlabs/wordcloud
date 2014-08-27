@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
 
-ACTIVE_LISTS = ('german', 'french', 'italian', 'english', 'spanish')
+# ACTIVE_LISTS = ('german', 'french', 'italian', 'english', 'spanish')
+ACTIVE_LISTS = ('english', 'spanish')
 
 class StopWords(object):
     
@@ -37,7 +38,7 @@ class StopWords(object):
         for language, stop_word_list in self.stop_words_lists.items():
             count = 0
             for word in words:
-                if word in stop_word_list:
+                if word.encode('ascii', 'ignore') in stop_word_list:
                     count += 1
                     
             if count > currentMax:

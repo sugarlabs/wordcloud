@@ -304,9 +304,14 @@ class WordCloudActivity(activity.Activity):
         fd.write(text)
         fd.close()
         path = os.path.join('/tmp/cloud_large.png')
-        subprocess.check_output(
-            [os.path.join(activity.get_bundle_path(), 'wordcloud.py')])
-
+        try:
+            return_code = subprocess.check_call(
+                [os.path.join(activity.get_bundle_path(), 'wordcloud.py')])
+        except subprocess.CalledProcessError, e:
+            logging.error(e)
+            self.get_window().set_cursor(
+                Gdk.Cursor.new(Gdk.CursorType.LEFT_PTR))
+            return  # some sort of alert
         '''
         tag_counts = get_tag_counts(text)
 
@@ -348,7 +353,8 @@ class WordCloudActivity(activity.Activity):
         dsobject.destroy()
 
     def _copy_cb(self, button):
-        self._text_item.get_text_buffer().copy_clipboard()
+        clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
+        self._text_item.get_text_buffer().copy_clipboard(clipboard)
 
     def _paste_cb(self, button):
         clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
