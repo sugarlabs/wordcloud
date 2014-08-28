@@ -386,9 +386,9 @@ def _draw_cloud(tag_list,
 
     canvas = _get_tags_bounding(aligned_tags)
 
-    # Add some padding
-    canvas.width += 120
-    canvas.height += 120
+    padding = 120
+    canvas.width += padding
+    canvas.height += padding
 
     return canvas, aligned_tags
 
@@ -396,7 +396,7 @@ def _draw_cloud(tag_list,
 def create_tag_image(
         tags,
         output,
-        size=(500, 500),
+                size=(1024, 768),
         background=(255, 255, 255),
         layout=LAYOUT_MIX,
         fontname=DEFAULT_FONT,
@@ -435,7 +435,7 @@ def create_tag_image(
 
 
 def create_html_data(tags,
-                     size=(500, 500),
+                     size=(1024, 768),
                      layout=LAYOUT_MIX,
                      fontname=DEFAULT_FONT,
                      rectangular=False):

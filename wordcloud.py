@@ -98,25 +98,25 @@ class WordCloud():
 
         if self._repeat_tags:
             expanded_tag_counts = []
-            i = 1
-            while len(expanded_tag_counts) < 25:
-                for tag in tag_counts:
-                    expanded_tag_counts.append((tag[0], i * 3 + 1))
-                    if not len(expanded_tag_counts) < 25:
-                        break
-                i += 1
+            for tag in tag_counts:
+                expanded_tag_counts.append((tag[0], 5))
+            for tag in tag_counts:
+                expanded_tag_counts.append((tag[0], 2))
+            for tag in tag_counts:
+                expanded_tag_counts.append((tag[0], 1))
             tag_counts = expanded_tag_counts
 
         tags = make_tags(tag_counts, maxsize=150, colors=self._color_scheme)
         path = os.path.join('/tmp/cloud_large.png')
  
         if Gdk.Screen.height() < Gdk.Screen.width():
-            height = Gdk.Screen.height() - style.GRID_CELL_SIZE
+            height = Gdk.Screen.height()
             width = int(height * 4 / 3)
         else:
             width = Gdk.Screen.width()
             height = int(width * 3 / 4)
 
+        print width, height
         if self._font_name is not None:
             create_tag_image(tags, path, layout=self._layout,
                              size=(width, height),

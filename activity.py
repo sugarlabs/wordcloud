@@ -291,7 +291,19 @@ class WordCloudActivity(activity.Activity):
                 break
 
     def _show_image(self, path):
-        image = Gtk.Image.new_from_file(path)
+        if Gdk.Screen.height() < Gdk.Screen.width():
+            height = Gdk.Screen.height() - style.GRID_CELL_SIZE
+            width = int(height * 4 / 3)
+        else:
+            width = Gdk.Screen.width()
+            height = int(width * 3 / 4)
+
+        pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(
+            path, width, height)
+
+        image = Gtk.Image()
+        image.set_from_pixbuf(pixbuf)
+
         align = Gtk.Alignment.new(xalign=0.5, yalign=0.5, xscale=1.0,
                                   yscale=1.0)
         align.add(image)
