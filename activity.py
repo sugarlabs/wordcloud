@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- 
+
 import os
 import logging
 import subprocess
@@ -24,34 +24,26 @@ from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import GdkPixbuf
 from gi.repository import GObject
-from gi.repository import Pango
 
 from gettext import gettext as _
 
 from sugar3.graphics.palettemenu import PaletteMenuItem
-from sugar3.graphics.palette import ToolInvoker
 from sugar3.activity import activity
 from sugar3.graphics.toolbarbox import ToolbarBox
 from sugar3.activity.widgets import ActivityToolbarButton
 from sugar3.graphics.palettemenu import PaletteMenuBox
 from sugar3.graphics.toolbarbox import ToolbarButton
+from sugar3.activity.widgets import EditToolbar
 from sugar3.activity.widgets import StopButton
 from sugar3.graphics.toolbutton import ToolButton
 from sugar3.graphics.toggletoolbutton import ToggleToolButton
-from sugar3.graphics.menuitem import MenuItem
-from sugar3.graphics.icon import Icon
 from sugar3.graphics import style
-from sugar3.graphics.xocolor import XoColor
-from sugar3.graphics.palette import Palette
 from sugar3.datastore import datastore
 from sugar3.graphics.alert import NotifyAlert
 from sugar3 import profile
-from sugar3 import env
 
-from pytagcloud import (create_tag_image, make_tags, load_font, FONT_CACHE,
-                        LAYOUT_HORIZONTAL, LAYOUT_VERTICAL, LAYOUT_MIX,
-                        LAYOUT_FORTYFIVE, LAYOUT_RANDOM)
-from pytagcloud.lang.counter import get_tag_counts
+from pytagcloud import (FONT_CACHE, LAYOUT_HORIZONTAL, LAYOUT_VERTICAL,
+                        LAYOUT_MIX, LAYOUT_FORTYFIVE, LAYOUT_RANDOM)
 from pytagcloud.colors import COLOR_SCHEMES
 
 LAYOUT_SCHEMES = {'horizontal': LAYOUT_HORIZONTAL,
@@ -200,30 +192,19 @@ class WordCloudActivity(activity.Activity):
         self._toolbox.show()
         self.toolbar = self._toolbox.toolbar
 
-        edit_toolbar = Gtk.Toolbar()
-        self.edit_toolbar_button = ToolbarButton(
-            page=edit_toolbar,
-            label=_('Edit'),
-            icon_name='toolbar-edit')
-        self._toolbox.toolbar.insert(self.edit_toolbar_button, 1)
-        edit_toolbar.show()
-        self.edit_toolbar_button.show()
+        self._edit_toolbar = EditToolbar()
+        button = ToolbarButton()
+        button.set_page(self._edit_toolbar)
+        button.props.icon_name = 'toolbar-edit'
+        button.props.label = _('Edit')
+        self._toolbox.toolbar.insert(button, -1)
+        button.show()
+        self._edit_toolbar.show()
 
-        self._copy_button = ToolButton('edit-copy')
-        self._copy_button.set_tooltip(_('Copy'))
-        self._copy_button.props.accelerator = '<Ctrl>C'
-        edit_toolbar.insert(self._copy_button, -1)
-        self._copy_button.show()
-        self._copy_button.connect('clicked', self._copy_cb)
-        self._copy_button.set_sensitive(True)
-
-        self._paste_button = ToolButton('edit-paste')
-        self._paste_button.set_tooltip(_('Paste'))
-        self._paste_button.props.accelerator = '<Ctrl>V'
-        edit_toolbar.insert(self._paste_button, -1)
-        self._paste_button.show()
-        self._paste_button.connect('clicked', self._paste_cb)
-        self._paste_button.set_sensitive(False)
+        self._edit_toolbar.undo.connect('clicked', self._undo_cb)
+        self._edit_toolbar.redo.connect('clicked', self._redo_cb)
+        self._edit_toolbar.copy.connect('clicked', self._copy_cb)
+        self._edit_toolbar.paste.connect('clicked', self._paste_cb)
 
         go_button = ToolButton('generate-cloud')
         self._toolbox.toolbar.insert(go_button, -1)
@@ -345,7 +326,7 @@ class WordCloudActivity(activity.Activity):
         fd.close()
         path = os.path.join('/tmp/cloud_large.png')
         try:
-            return_code = subprocess.check_call(
+            subprocess.check_call(
                 [os.path.join(activity.get_bundle_path(), 'wordcloud.py')])
         except subprocess.CalledProcessError as e:
             self.get_window().set_cursor(
@@ -381,14 +362,26 @@ class WordCloudActivity(activity.Activity):
     def _remove_alert_cb(self, alert, response_id):
         self.remove_alert(alert)
 
+    def _undo_cb(self, butston):
+        text_buffer = self._text_item.get_text_buffer()
+        if text_buffer.can_undo():
+            text_buffer.undo()
+
+    def _redo_cb(self, button):
+        text_buffer = self._text_item.get_text_buffer()
+        if text_buffer.can_redo():
+            text_buffer.redo()
+
     def _copy_cb(self, button):
+        text_buffer = self._text_item.get_text_buffer()
         clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
-        self._text_item.get_text_buffer().copy_clipboard(clipboard)
+        text_buffer.copy_clipboard(clipboard)
 
     def _paste_cb(self, button):
+        text_buffer = self._text_item.get_text_buffer()
         clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
-        clipboard_text = clipboard.wait_for_text()
-        self._entry.paste_clipboard()
+        text_buffer.paste_clipboard(
+            clipboard, None, True)
 
     def _init_font_list(self):
         self._font_list = []
@@ -552,7 +545,7 @@ class FontImage(Gtk.Image):
         path = os.path.join(activity.get_bundle_path(), 'pytagcloud', 'fonts',
                             font_name.replace(' ', '-') + '.png')
         pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(
-            path, style.SMALL_ICON_SIZE, style.SMALL_ICON_SIZE) # 24, 24)
+            path, style.SMALL_ICON_SIZE, style.SMALL_ICON_SIZE)
         self.set_from_pixbuf(pixbuf)
         self.show()
 
@@ -614,7 +607,7 @@ class LayoutToolItem(ToolButton):
         layout_box = PaletteMenuBox()
 
         layout_box.append_item(activity.layout_palette_content,
-                              vertical_padding=0)
+                               vertical_padding=0)
         self._palette.set_content(layout_box)
         layout_box.show_all()
 
