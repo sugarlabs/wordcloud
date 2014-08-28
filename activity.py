@@ -113,34 +113,34 @@ def _color_icon(colors, selected=False):
           'height="55">\n'
 
     svg += '<rect\n' \
-        'width="11"\n' \
-        'height="55"\n' \
-        'x="0"\n' \
-        'y="0"\n' \
+        'width="9"\n' \
+        'height="45"\n' \
+        'x="5"\n' \
+        'y="5"\n' \
         'style="fill:%s;fill-opacity:1;fill-rule:nonzero;stroke:none" />\n' \
         '<rect\n' \
-        'width="11"\n' \
-        'height="55"\n' \
-        'x="11"\n' \
-        'y="0"\n' \
+        'width="9"\n' \
+        'height="45"\n' \
+        'x="14"\n' \
+        'y="5"\n' \
         'style="fill:%s;fill-opacity:1;fill-rule:nonzero;stroke:none" />\n' \
         '<rect\n' \
-        'width="11"\n' \
-        'height="55"\n' \
-        'x="22"\n' \
-        'y="0"\n' \
+        'width="9"\n' \
+        'height="45"\n' \
+        'x="23"\n' \
+        'y="5"\n' \
         'style="fill:%s;fill-opacity:1;fill-rule:nonzero;stroke:none" />\n' \
         '<rect\n' \
-        'width="11"\n' \
-        'height="55"\n' \
-        'x="33"\n' \
-        'y="0"\n' \
+        'width="9"\n' \
+        'height="45"\n' \
+        'x="32"\n' \
+        'y="5"\n' \
         'style="fill:%s;fill-opacity:1;fill-rule:nonzero;stroke:none" />\n' \
         '<rect\n' \
-        'width="11"\n' \
+        'width="9"\n' \
         'height="55"\n' \
-        'x="44"\n' \
-        'y="0"\n' \
+        'x="41"\n' \
+        'y="5"\n' \
         'style="fill:%s;fill-opacity:1;fill-rule:nonzero;stroke:none" />\n' \
         % (_hex(colors[0]), _hex(colors[1]), _hex(colors[2]), _hex(colors[3]),
            _hex(colors[4]))
