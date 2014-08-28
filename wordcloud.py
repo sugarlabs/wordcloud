@@ -30,6 +30,8 @@ import os
 import pygame
 from gi.repository import Gdk
 
+from sugar3.graphics import style
+
 from StringIO import StringIO
 
 import json
@@ -107,23 +109,25 @@ class WordCloud():
 
         tags = make_tags(tag_counts, maxsize=150, colors=self._color_scheme)
         path = os.path.join('/tmp/cloud_large.png')
+ 
+        if Gdk.Screen.height() < Gdk.Screen.width():
+            height = Gdk.Screen.height() - style.GRID_CELL_SIZE
+            width = int(height * 4 / 3)
+        else:
+            width = Gdk.Screen.width()
+            height = int(width * 3 / 4)
 
-        print('CREATE TAG IMAGE')
         if self._font_name is not None:
             create_tag_image(tags, path, layout=self._layout,
-                             size=(Gdk.Screen.width(), Gdk.Screen.height()),
+                             size=(width, height),
                              fontname=self._font_name)
         else:
             create_tag_image(tags, path, layout=self._layout,
-                             size=(Gdk.Screen.width(), Gdk.Screen.height()))
+                             size=(width, height))
         return 0
 
 
 if __name__ == "__main__":
-    # pygame.init()
-    # pygame.display.set_mode((1024, 768), pygame.FULLSCREEN)
     game = WordCloud()
     game.run()
-    # pygame.display.quit()
-    # pygame.quit()
     sys.exit(0)

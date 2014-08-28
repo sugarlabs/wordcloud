@@ -297,7 +297,8 @@ class WordCloudActivity(activity.Activity):
         align.add(image)
         image.show()
         evbox = Gtk.EventBox()
-        evbox.set_size_request(Gdk.Screen.width(), Gdk.Screen.height())
+        evbox.set_size_request(Gdk.Screen.width(),
+                               Gdk.Screen.height() - style.GRID_CELL_SIZE)
         evbox.modify_bg(
             Gtk.StateType.NORMAL, style.COLOR_WHITE.get_gdk_color())
         evbox.add(align)
