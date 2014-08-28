@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Sokoban.py
+# wordclound.py
 """
     Copyright (C) 2014 Walter Bender
 
@@ -10,27 +10,12 @@
 
 """
 
-from pytagcloud import (create_tag_image, make_tags, load_font, FONT_CACHE,
-                        LAYOUT_HORIZONTAL, LAYOUT_VERTICAL, LAYOUT_MIX,
-                        LAYOUT_FORTYFIVE, LAYOUT_RANDOM)
+from pytagcloud import create_tag_image, make_tags, LAYOUT_MIX
 from pytagcloud.lang.counter import get_tag_counts
-from pytagcloud.colors import COLOR_SCHEMES
-
-LAYOUT_SCHEMES = {'horizontal': LAYOUT_HORIZONTAL,
-                  'vertical': LAYOUT_VERTICAL,
-                  'mix': LAYOUT_MIX,
-                  'fortyfive': LAYOUT_FORTYFIVE,
-                  'random': LAYOUT_RANDOM}
-
-_TEXT = 'Type your text here and then click on the start button.'
-
 
 import sys
 import os
-import pygame
 from gi.repository import Gdk
-
-from sugar3.graphics import style
 
 from StringIO import StringIO
 
@@ -78,8 +63,8 @@ class WordCloud():
             self._layout = LAYOUT_MIX
             self._font_name = None
             self._color_scheme = ((241, 143, 0), (128, 186, 39),
-                                  (13, 147, 210), 
-                                  (231, 30, 108), (135, 135, 135))
+                                  (13, 147, 210), (231, 30, 108),
+                                  (135, 135, 135))
         try:
             fd = open('/tmp/cloud_text.txt', 'r')
             self._text = fd.read()
@@ -93,7 +78,6 @@ class WordCloud():
     def _create_image(self, text):
         tag_counts = get_tag_counts(text)
         if tag_counts is None:
-            print('ONLY FOUND STOP WORDS')
             sys.exit(-1)
 
         if self._repeat_tags:
@@ -108,7 +92,7 @@ class WordCloud():
 
         tags = make_tags(tag_counts, maxsize=150, colors=self._color_scheme)
         path = os.path.join('/tmp/cloud_large.png')
- 
+
         if Gdk.Screen.height() < Gdk.Screen.width():
             height = Gdk.Screen.height()
             width = int(height * 4 / 3)
@@ -116,7 +100,6 @@ class WordCloud():
             width = Gdk.Screen.width()
             height = int(width * 3 / 4)
 
-        print width, height
         if self._font_name is not None:
             create_tag_image(tags, path, layout=self._layout,
                              size=(width, height),
