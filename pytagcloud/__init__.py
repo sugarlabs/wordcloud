@@ -386,7 +386,7 @@ def _draw_cloud(tag_list,
 
     canvas = _get_tags_bounding(aligned_tags)
 
-    padding = 120
+    padding = 160
     canvas.width += padding
     canvas.height += padding
 
