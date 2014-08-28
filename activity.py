@@ -348,7 +348,7 @@ class WordCloudActivity(activity.Activity):
                             ' Please try adding more words.')
             else:
                 logging.error('MEMORY ERROR')
-                MESSAGE = _('There was a problem. Please try again.')
+                MESSAGE = _('Oops. There was a problem. Please try again.')
             alert.props.msg = MESSAGE
             alert.connect('response', self._remove_alert_cb)
             self.add_alert(alert)
