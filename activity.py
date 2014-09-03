@@ -175,6 +175,7 @@ class WordCloudActivity(activity.Activity):
         self.connect('realize', self.__realize_cb)
 
         self.max_participants = 1  # No sharing
+
         self._font_name = None
         self._layout = LAYOUT_RANDOM
         self._xo_colors = (_rgb(profile.get_color().to_string().split(',')[0]),
@@ -217,6 +218,9 @@ class WordCloudActivity(activity.Activity):
         self._text_item = TextItem(self)
         self._toolbox.toolbar.insert(self._text_item, -1)
         self._text_item.show()
+        text = self._read_metadata('text')
+        if text is not None:
+            self._text_item.set_text(text)
 
         self._repeat_button = ToggleToolButton('repeat-cloud')
         self._toolbox.toolbar.insert(self._repeat_button, -1)
@@ -272,6 +276,16 @@ class WordCloudActivity(activity.Activity):
             if LAYOUT_SCHEMES[layout] == self._layout:
                 self._set_layout(layout)
                 break
+
+    def _read_metadata(self, keyword, default_value=None):
+        ''' If the keyword is found, return stored value '''
+        if keyword in self.metadata:
+            return(self.metadata[keyword])
+        else:
+            return(default_value)
+
+    def write_file(self, file_path):
+        self.metadata['text'] = self._text_item.get_text_from_buffer()
 
     def _show_image(self, path):
         if Gdk.Screen.height() < Gdk.Screen.width():
@@ -525,6 +539,9 @@ class TextItem(ToolButton):
 
     def get_text_buffer(self):
         return self._text_view.get_buffer()
+
+    def set_text(self, text):
+        self._text_buffer.set_text(text)
 
     def get_text_from_buffer(self):
         buf = self._text_view.get_buffer()
