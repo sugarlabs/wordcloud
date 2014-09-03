@@ -228,10 +228,11 @@ class WordCloudActivity(activity.Activity):
         self._repeat_button.show()
         self._repeat_button.connect('clicked', self._repeat_cb)
 
-        self.font_palette_content = set_palette_list(
-            self._setup_font_palette(), 3, 7,
-            style.SMALL_ICON_SIZE + style.DEFAULT_SPACING +
-            style.DEFAULT_PADDING)
+        self.font_palette_content, self.font_palette_dict = \
+            set_palette_list(
+                self._setup_font_palette(), 3, 7,
+                style.SMALL_ICON_SIZE + style.DEFAULT_SPACING +
+                style.DEFAULT_PADDING, return_dict=True)
         self._font_button = FontToolItem(self)
         self.font_palette_content.show()
         self._toolbox.toolbar.insert(self._font_button, -1)
@@ -271,6 +272,7 @@ class WordCloudActivity(activity.Activity):
             activity.get_bundle_path(), 'WordCloud.png'))
 
         self._set_color('XO')
+        self._set_font('Droid Sans')
 
         for layout in LAYOUT_SCHEMES.keys():
             if LAYOUT_SCHEMES[layout] == self._layout:
@@ -411,13 +413,25 @@ class WordCloudActivity(activity.Activity):
         palette_list = []
         for font in sorted(self._font_list):
             palette_list.append({'icon': FontImage(font.replace(' ', '-')),
+                                 'selected': FontImage(font.replace(' ', '-'),
+                                                       selected=True),
                                  'callback': self.__font_selected_cb,
                                  'label': font})
         return palette_list
 
     def __font_selected_cb(self, widget, event, font_name):
         self._font_name = font_name
+        self._set_font(font_name)
         return
+
+    def _set_font(self, font):
+        for entry in self.font_palette_dict.keys():
+            if entry == font:
+                self.font_palette_dict[entry]['icon'].hide()
+                self.font_palette_dict[entry]['selected'].show()
+            else:
+                self.font_palette_dict[entry]['icon'].show()
+                self.font_palette_dict[entry]['selected'].hide()
 
     def _setup_color_palette(self):
         palette_list = []
@@ -558,11 +572,17 @@ class TextItem(ToolButton):
 
 class FontImage(Gtk.Image):
 
-    def __init__(self, font_name):
+    def __init__(self, font_name, selected=False):
         super(Gtk.Image, self).__init__()
 
-        path = os.path.join(activity.get_bundle_path(), 'pytagcloud', 'fonts',
-                            font_name.replace(' ', '-') + '.png')
+        if selected:
+            path = os.path.join(
+                activity.get_bundle_path(), 'pytagcloud', 'fonts',
+                font_name.replace(' ', '-') + '-selected.png')
+        else:
+            path = os.path.join(
+                activity.get_bundle_path(), 'pytagcloud', 'fonts',
+                font_name.replace(' ', '-') + '.png')
         pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(
             path, style.SMALL_ICON_SIZE, style.SMALL_ICON_SIZE)
         self.set_from_pixbuf(pixbuf)

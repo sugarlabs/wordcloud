@@ -53,3 +53,33 @@ msgstr "Nube Palabra"
 #: activity.py:155
 msgid "Cloud Text"
 msgstr "Las palabras en la nube"
+
+#: activity.py:221
+msgid "Repeat words"
+msgstr "Repetir palabras" 
+
+#: activity.py:340
+msgid "All of your words are \"stop words.\" Please try adding more words."
+msgstr ""
+"Todas sus palabras son \" palabras de dejar. \" "
+"Por favor, intente agregar más palabras." 
+
+#: activity.py:344
+msgid "Oops. There was a problem. Please try again."
+msgstr "Oops. Hubo un problema. Por favor, inténtelo de nuevo." 
+
+#: activity.py:421 activity.py:427
+msgid "random"
+msgstr "azar"
+
+#: activity.py:601
+msgid "Select layout"
+msgstr "Seleccionar diseño"
+
+#: activity.py:644
+msgid "Select color scheme"
+msgstr "Seleccionar el esquema de color" 
+
+#: activity.py:687
+msgid "Select font"
+msgstr "Seleccionar el tipo de letra"
