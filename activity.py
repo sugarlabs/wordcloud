@@ -201,8 +201,10 @@ class WordCloudActivity(activity.Activity):
         button.show()
         self._edit_toolbar.show()
 
-        self._edit_toolbar.undo.connect('clicked', self._undo_cb)
-        self._edit_toolbar.redo.connect('clicked', self._redo_cb)
+        # self._edit_toolbar.undo.connect('clicked', self._undo_cb)
+        # self._edit_toolbar.redo.connect('clicked', self._redo_cb)
+        self._edit_toolbar.undo.hide()
+        self._edit_toolbar.redo.hide()
         self._edit_toolbar.copy.connect('clicked', self._copy_cb)
         self._edit_toolbar.paste.connect('clicked', self._paste_cb)
 
