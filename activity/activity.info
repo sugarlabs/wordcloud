@@ -6,4 +6,4 @@ exec = sugar-activity activity.WordCloudActivity
 icon = activity-wordcloud
 single_instance = yes
 license = GPLv3+
-category = art language
+tags = art language
