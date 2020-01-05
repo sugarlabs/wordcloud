@@ -170,7 +170,7 @@ def make_tags(wordcounts, minsize=3, maxsize=36, colors=None, scalef=defscale):
                      'size': scalef(word_count[1], mincount,
                                     maxcount, minsize, maxsize),
                      'tag': word_count[0]})
-    logging.debug('tag count=%d' % len(tags))
+    logging.debug('tag count={}'.format(len(tags)))
     logging.debug(tags)
     return tags
 
@@ -367,7 +367,7 @@ def _draw_cloud(tag_list,
     # resize cloud
     zoom = min(float(size[0]) / canvas.w, float(size[1]) / canvas.h)
 
-    logging.debug('zoom %f' % zoom)
+    logging.debug('zoom {}'.format(zoom))
     cw = int(canvas.w * zoom)
     ch = int(canvas.h * zoom)
 
@@ -463,7 +463,7 @@ def create_html_data(tags,
     color_map = {}
     for color_index, tag in enumerate(tags):
         if not tag['color'] in color_map:
-            color_name = "c%d" % color_index
+            color_name = 'c{}'.format(color_index)
             hslcolor = colorsys.rgb_to_hls(tag['color'][0] / 255.0,
                                            tag['color'][1] / 255.0,
                                            tag['color'][2] / 255.0)

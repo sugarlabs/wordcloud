@@ -20,6 +20,11 @@ import os
 import logging
 import subprocess
 
+import gi
+
+gi.require_version('Gtk', '3.0')
+gi.require_version('Gdk', '3.0')
+
 from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import GdkPixbuf
@@ -55,7 +60,7 @@ LAYOUT_SCHEMES = {'horizontal': LAYOUT_HORIZONTAL,
 _TEXT = _('Type your text here and then click on the start button. '
           'Your word cloud will be saved to the Journal.')
 
-from StringIO import StringIO
+from io import StringIO
 
 import json
 json.dumps
@@ -160,7 +165,7 @@ def _color_icon(colors, selected=False):
 def svg_str_to_pixbuf(string):
     ''' Load pixbuf from SVG string '''
     pl = GdkPixbuf.PixbufLoader.new_with_type('svg')
-    pl.write(string)
+    pl.write(string.encode())
     pl.close()
     pixbuf = pl.get_pixbuf()
     return pixbuf
@@ -274,7 +279,7 @@ class WordCloudActivity(activity.Activity):
         self._set_color('XO')
         self._set_font('Droid Sans')
 
-        for layout in LAYOUT_SCHEMES.keys():
+        for layout in list(LAYOUT_SCHEMES.keys()):
             if LAYOUT_SCHEMES[layout] == self._layout:
                 self._set_layout(layout)
                 break
@@ -404,7 +409,7 @@ class WordCloudActivity(activity.Activity):
     def _init_font_list(self):
         self._font_list = []
         for f in FONT_CACHE:
-            self._font_list.append(f['name'].encode('utf-8'))
+            self._font_list.append(f['name'])
         return
 
     def _setup_font_palette(self):
@@ -425,7 +430,7 @@ class WordCloudActivity(activity.Activity):
         return
 
     def _set_font(self, font):
-        for entry in self.font_palette_dict.keys():
+        for entry in list(self.font_palette_dict.keys()):
             if entry == font:
                 self.font_palette_dict[entry]['icon'].hide()
                 self.font_palette_dict[entry]['selected'].show()
@@ -439,7 +444,7 @@ class WordCloudActivity(activity.Activity):
                              'selected': ColorImage('xo', selected=True),
                              'callback': self.__color_selected_cb,
                              'label': 'XO'})
-        for color in COLOR_SCHEMES.keys():
+        for color in list(COLOR_SCHEMES.keys()):
             palette_list.append({'icon': ColorIcon(COLOR_SCHEMES[color]),
                                  'selected': ColorIcon(
                                      COLOR_SCHEMES[color], selected=True),
@@ -463,7 +468,7 @@ class WordCloudActivity(activity.Activity):
         return
 
     def _set_color(self, color):
-        for entry in self.color_palette_dict.keys():
+        for entry in list(self.color_palette_dict.keys()):
             if entry == color:
                 self.color_palette_dict[entry]['icon'].hide()
                 self.color_palette_dict[entry]['selected'].show()
@@ -473,7 +478,7 @@ class WordCloudActivity(activity.Activity):
 
     def _setup_layout_palette(self):
         palette_list = []
-        for layout in LAYOUT_SCHEMES.keys():
+        for layout in list(LAYOUT_SCHEMES.keys()):
             palette_list.append({'icon': LayoutImage(layout),
                                  'selected': LayoutImage(layout,
                                                          selected=True),
@@ -486,7 +491,7 @@ class WordCloudActivity(activity.Activity):
         self._layout = LAYOUT_SCHEMES[layout]
 
     def _set_layout(self, layout):
-        for entry in self.layout_palette_dict.keys():
+        for entry in list(self.layout_palette_dict.keys()):
             if entry == layout:
                 self.layout_palette_dict[entry]['icon'].hide()
                 self.layout_palette_dict[entry]['selected'].show()

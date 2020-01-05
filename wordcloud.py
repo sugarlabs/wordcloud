@@ -15,9 +15,13 @@ from pytagcloud.lang.counter import get_tag_counts
 
 import sys
 import os
+import gi
+
+gi.require_version('Gdk', '3.0')
+
 from gi.repository import Gdk
 
-from StringIO import StringIO
+from io import StringIO
 
 import json
 json.dumps
