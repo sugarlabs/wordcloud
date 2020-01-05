@@ -74,14 +74,15 @@ def get_cloud_cr(canvas=None):
 
 
 def __draw_cb(self, canvas, cr):
-        cr.set_source_surface(cloud_canvas)
-        cr.paint()
+    cr.set_source_surface(cloud_canvas)
+    cr.paint()
 
 
 class Tag(Sprite):
     """
     Font tag sprite. Blit the font to a surface to correct the font padding
     """
+
     def __init__(self, tag, initial_position, fontname=DEFAULT_FONT):
         Sprite.__init__(self)
         self.tag = copy(tag)
@@ -169,8 +170,8 @@ def make_tags(wordcounts, minsize=3, maxsize=36, colors=None, scalef=defscale):
                      'size': scalef(word_count[1], mincount,
                                     maxcount, minsize, maxsize),
                      'tag': word_count[0]})
-    logging.error('tag count=%d' % len(tags))
-    logging.error(tags)
+    logging.debug('tag count=%d' % len(tags))
+    logging.debug(tags)
     return tags
 
 
@@ -396,7 +397,7 @@ def _draw_cloud(tag_list,
 def create_tag_image(
         tags,
         output,
-                size=(1024, 768),
+        size=(1024, 768),
         background=(255, 255, 255),
         layout=LAYOUT_MIX,
         fontname=DEFAULT_FONT,
@@ -480,8 +481,8 @@ def create_html_data(tags,
         line_offset = 0
 
         line_offset = stag.font.get_linesize() - \
-                      (stag.font.get_ascent() + abs(stag.font.get_descent()) -
-                       stag.rect.height) - 4
+            (stag.font.get_ascent() + abs(stag.font.get_descent()) -
+             stag.rect.height) - 4
 
         tag = {
             'tag': stag.tag['tag'],
