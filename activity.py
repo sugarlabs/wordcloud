@@ -202,12 +202,25 @@ class WordCloudActivity(activity.Activity):
         button.show()
         self._edit_toolbar.show()
 
-        # self._edit_toolbar.undo.connect('clicked', self._undo_cb)
-        # self._edit_toolbar.redo.connect('clicked', self._redo_cb)
-        self._edit_toolbar.undo.hide()
-        self._edit_toolbar.redo.hide()
-        self._edit_toolbar.copy.connect('clicked', self._copy_cb)
-        self._edit_toolbar.paste.connect('clicked', self._paste_cb)
+        self._undo_button = self._edit_toolbar.undo
+        self._undo_button.set_sensitive(False)
+        self._undo_button.connect('clicked', self._undo_cb)
+        self._redo_button = self._edit_toolbar.redo
+        self._redo_button.set_sensitive(False)
+        self._redo_button.connect('clicked', self._redo_cb)
+
+        # used to count number of times wordcloud is clicked
+        self._count_wordcloud = 0
+        self._undo_clicked = False
+        self._save_text = []  # used to save text for undo
+        self._save_text_redo = []  # used to save text for redo
+
+        self._copy_button = self._edit_toolbar.copy
+        self._copy_button.set_sensitive(False)
+        self._copy_button.connect('clicked', self._copy_cb)
+        self._paste_button = self._edit_toolbar.paste
+        self._paste_button.set_sensitive(False)
+        self._paste_button.connect('clicked', self._paste_cb)
 
         go_button = ToolButton('generate-cloud')
         self._toolbox.toolbar.insert(go_button, -1)
@@ -326,6 +339,23 @@ class WordCloudActivity(activity.Activity):
     def _go_cb(self, widget):
         self._text_item.set_expanded(False)
         text = self._text_item.get_text_from_buffer()
+        # count_wordcloud is used to set if undo and redo buttons are available
+        self._count_wordcloud += 1
+
+
+        if self._undo_clicked:
+            self._count_wordcloud = 1
+            self._save_text = []
+            self._undo_clicked = False
+
+        self._save_text.append(text)
+
+        if self._count_wordcloud > 0:
+            self._copy_button.set_sensitive(True)
+
+        if self._count_wordcloud > 1:
+            self._undo_button.set_sensitive(True)
+
         if len(text) > 0:
             self.get_window().set_cursor(Gdk.Cursor.new(Gdk.CursorType.WATCH))
 
@@ -380,20 +410,28 @@ class WordCloudActivity(activity.Activity):
     def _remove_alert_cb(self, alert, response_id):
         self.remove_alert(alert)
 
-    def _undo_cb(self, butston):
-        text_buffer = self._text_item.get_text_buffer()
-        if text_buffer.can_undo():
-            text_buffer.undo()
+    def _undo_cb(self, button):
+        ''' Undo button implementation.
+        Can only go back one step'''
+        text_buffer = self._save_text[self._count_wordcloud - 2]
+        self._redo_button.set_sensitive(True)
+        self._text_item.set_text(text_buffer)
+        self._undo_button.set_sensitive(False)
+        self._save_text_redo.append(self._save_text.pop())
+        self._undo_clicked = True
 
     def _redo_cb(self, button):
-        text_buffer = self._text_item.get_text_buffer()
-        if text_buffer.can_redo():
-            text_buffer.redo()
+        ''' Redo button implementation.
+        Disabled if there is nothing to be redone'''
+        text_buffer = self._save_text_redo.pop()
+        self._text_item.set_text(text_buffer)
+        self._redo_button.set_sensitive(False)
 
     def _copy_cb(self, button):
         text_buffer = self._text_item.get_text_buffer()
         clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
         text_buffer.copy_clipboard(clipboard)
+        self._paste_button.set_sensitive(True)
 
     def _paste_cb(self, button):
         text_buffer = self._text_item.get_text_buffer()
