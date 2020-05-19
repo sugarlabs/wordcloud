@@ -347,7 +347,6 @@ class WordCloudActivity(activity.Activity):
         # count_wordcloud is used to set if undo and redo buttons are available
         self._count_wordcloud += 1
 
-
         if self._undo_clicked:
             self._count_wordcloud = 1
             self._save_text = []
