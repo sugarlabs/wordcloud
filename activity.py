@@ -28,7 +28,7 @@ gi.require_version('Gdk', '3.0')
 from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import GdkPixbuf
-from gi.repository import GObject
+from gi.repository import GLib
 
 from gettext import gettext as _
 
@@ -363,7 +363,7 @@ class WordCloudActivity(activity.Activity):
         if len(text) > 0:
             self.get_window().set_cursor(Gdk.Cursor.new(Gdk.CursorType.WATCH))
 
-            GObject.idle_add(self._create_image, text)
+            GLib.idle_add(self._create_image, text)
 
     def _create_image(self, text):
         fd = open('/tmp/cloud_data.txt', 'w')
