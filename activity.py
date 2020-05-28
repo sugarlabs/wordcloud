@@ -434,7 +434,8 @@ class WordCloudActivity(activity.Activity):
     def _copy_cb(self, button):
         text_buffer = self._text_item.get_text_buffer()
         clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
-        text_buffer.copy_clipboard(clipboard)
+        if text_buffer.get_has_selection():
+            text_buffer.copy_clipboard(clipboard)
         self._paste_button.set_sensitive(True)
 
     def _paste_cb(self, button):
