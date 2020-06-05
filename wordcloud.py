@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#! /usr/bin/env python3
 # wordclound.py
 """
     Copyright (C) 2014 Walter Bender
