@@ -9,7 +9,7 @@ def get_tag_counts(text):
     Search tags in a given text. The language detection is based on stop lists.
     This implementation is inspired by https://github.com/jdf/cue.language. Thanks Jonathan Feinberg.
     """
-    text = str(text, 'UTF-8')
+    text = str(text)
     words = [x.lower() for x in re.findall(r'\w+', text, re.UNICODE)]
 
     # Workaround because the regex mangled the unicode
