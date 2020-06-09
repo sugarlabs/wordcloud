@@ -35,7 +35,7 @@ class StopWords(object):
         currentWinner = ACTIVE_LISTS[0];
         currentMax = 0;
         
-        for language, stop_word_list in self.stop_words_lists.items():
+        for language, stop_word_list in list(self.stop_words_lists.items()):
             count = 0
             for word in words:
                 if word.encode('ascii', 'ignore') in stop_word_list:
