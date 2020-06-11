@@ -1,5 +1,34 @@
 NEWS
 
+5
+* Fine tune repeated word mechanism (Walter Bender)
+* Add a border (Walter Bender)
+* More fine-tuning of padding; repeating (Walter Bender)
+* Add XO color scheme (Walter Bender)
+* Pep8 cleanup (Walter Bender)
+* Make XO colors the default; New icon (Walter Bender)
+* Add one-education colors (Walter Bender)
+* Make color palette on a 3x3 grid (Walter Bender)
+* Generate color bitmaps dynamically (Walter Bender)
+* Run wordcloud stand-alone to end-run memory leak (Walter Bender)
+* More robus stopword checks (Walter Bender)
+* Add Alerts (Walter Bender)
+* Highlight selected layout (Walter Bender)
+* Add highlights to color palette (Walter Bender)
+* Smaller canvas (Walter Bender)
+* New artwork from dan (Walter Bender)
+* Cleaned up artwork (Walter Bender)
+* Clean up padding (Walter Bender) 
+* Fine-tune colors (Walter Bender) 
+* New strings (Walter Bender)
+* Save text input between sessions (Walter Bender)
+* Highlight font selection (Walter Bender)
+* Add category (Walter Bender)
+* Add screenshots and fix metadata (Aryan Sharma)
+* Tidy up logging, fix indents (Zakiyah)
+* Fix undo and Redo (Jui Pradhan)
+* Regenerate POT file (Ibiam Chihurumnaya)
+
 4
 ENHANCEMENTS:
 * Added layout options: horizontal, vertical, mixed, fortyfive, random
