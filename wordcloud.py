@@ -106,13 +106,13 @@ class WordCloud():
         tags = make_tags(tag_counts, maxsize=150, colors=self._color_scheme)
         path = os.path.join('/tmp/cloud_large.png')
 
-        if Gdk.Screen.height() < Gdk.Screen.width():
-            height = Gdk.Screen.height()
-            ratio = Gdk.Screen.width() / Gdk.Screen.height()
+        width, height = self.get_display_rectangle()
+
+        if height < width:
+            ratio = width / height
             width = int(height * ratio)
         else:
-            width = Gdk.Screen.width()
-            ratio = Gdk.Screen.height() / Gdk.Screen.width()
+            ratio = height / width
             height = int(width * ratio)
 
         if self._font_name is not None:
