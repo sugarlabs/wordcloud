@@ -79,6 +79,15 @@ class WordCloud():
     def run(self):
         self._create_image(self._text)
 
+    def get_display_rectangle(self):
+        display = Gdk.Display.get_default()
+        monitor = display.get_primary_monitor()
+        geometry = monitor.get_geometry()
+        scale_factor = monitor.get_scale_factor()
+        width = scale_factor * geometry.width
+        height = scale_factor * geometry.height
+        return (width, height)
+
     def _create_image(self, text):
         tag_counts = get_tag_counts(text)
         if tag_counts is None:
