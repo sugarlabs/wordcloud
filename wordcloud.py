@@ -99,10 +99,12 @@ class WordCloud():
 
         if Gdk.Screen.height() < Gdk.Screen.width():
             height = Gdk.Screen.height()
-            width = int(height * 4 / 3)
+            ratio = Gdk.Screen.width() / Gdk.Screen.height()
+            width = int(height * ratio)
         else:
             width = Gdk.Screen.width()
-            height = int(width * 3 / 4)
+            ratio = Gdk.Screen.height() / Gdk.Screen.width()
+            height = int(width * ratio)
 
         if self._font_name is not None:
             create_tag_image(tags, path, layout=self._layout,
