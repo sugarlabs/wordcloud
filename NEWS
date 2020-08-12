@@ -1,5 +1,19 @@
 NEWS
 
+6
+* Port to Python3 (Kiy4h, Jui Pradhan)
+* Fix IndexError: pop from empty list (Jui Pradhan)
+* Change the undo counter (Jui Pradhan)
+* flake8 fixes (Jui Pradhan)
+* Port from GObject to GLib (Jui Pradhan)
+* Only copy clipboard if there is a currently selected text (Ibiam Chihurumnaya)
+* Modify shebang (Jui Pradhan)
+* Fix TypeError: decoding str is not supported (Jui Pradhan)
+* Fit words on display of all ratios (Jui Pradhan)
+* Add get_display_rectangle() to return Screen width and height (James Cameron)
+* Fix Deprecation Warning (Jui Pradhan)
+* Regenerate POT file (Jui Pradhan)
+
 5
 * Fine tune repeated word mechanism (Walter Bender)
 * Add a border (Walter Bender)
