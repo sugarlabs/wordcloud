@@ -175,7 +175,7 @@ def svg_str_to_pixbuf(string):
 class WordCloudActivity(activity.Activity):
 
     def __init__(self, handle):
-        """Set up the HelloWorld activity."""
+        """Set up the WordCloud activity."""
         activity.Activity.__init__(self, handle)
 
         self.connect('realize', self.__realize_cb)
@@ -188,6 +188,7 @@ class WordCloudActivity(activity.Activity):
                            _rgb(profile.get_color().to_string().split(',')[1]))
         self._color_scheme = self._xo_colors
         self._repeat_tags = False
+        self.image_no = 0
 
         self._toolbox = ToolbarBox()
 
@@ -307,6 +308,7 @@ class WordCloudActivity(activity.Activity):
 
     def write_file(self, file_path):
         self.metadata['text'] = self._text_item.get_text_from_buffer()
+        self.metadata['image_no'] = self.image_no
 
     def _show_image(self, path):
         if Gdk.Screen.height() < Gdk.Screen.width():
@@ -404,13 +406,16 @@ class WordCloudActivity(activity.Activity):
 
         self._show_image(path)
 
+        if "image_no" in self.metadata:
+            self.image_no = self.metadata["image_no"]
         dsobject = datastore.create()
-        dsobject.metadata['title'] = _('Word Cloud')
+        dsobject.metadata['title'] = _('Word Cloud-{}'.format(self.image_no))
         dsobject.metadata['icon-color'] = profile.get_color().to_string()
         dsobject.metadata['mime_type'] = 'image/png'
         dsobject.set_file_path(path)
         datastore.write(dsobject)
         dsobject.destroy()
+        self.image_no += 1
 
     def _remove_alert_cb(self, alert, response_id):
         self.remove_alert(alert)
