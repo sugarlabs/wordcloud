@@ -284,7 +284,6 @@ class WordCloudActivity(activity.Activity):
         separator.show()
 
         stop_button = StopButton(self)
-        stop_button.props.accelerator = '<Ctrl>q'
         self._toolbox.toolbar.insert(stop_button, -1)
         stop_button.show()
 
