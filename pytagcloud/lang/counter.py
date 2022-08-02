@@ -26,7 +26,7 @@ def get_tag_counts(text):
     counted = {}
     
     for word in words:
-        if not s.is_stop_word(word) and len(word) > 1:
+        if not s.is_stop_word(word) and len(word) >= 1:
             if word in counted:
                 counted[word] += 1
             else: 

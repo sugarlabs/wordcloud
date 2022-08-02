@@ -406,7 +406,7 @@ class WordCloudActivity(activity.Activity):
         self._show_image(path)
 
         if "image_no" in self.metadata:
-            self.image_no = self.metadata["image_no"]
+            self.image_no = int(self.metadata["image_no"])
         dsobject = datastore.create()
         dsobject.metadata['title'] = _('Word Cloud-{}'.format(self.image_no))
         dsobject.metadata['icon-color'] = profile.get_color().to_string()
