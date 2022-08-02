@@ -10,7 +10,7 @@ def get_tag_counts(text):
     This implementation is inspired by https://github.com/jdf/cue.language. Thanks Jonathan Feinberg.
     """
     text = str(text)
-    words = [x.lower() for x in re.findall(r'\w+', text, re.UNICODE)]
+    words = [x for x in re.findall(r'\w+', text, re.UNICODE)]
 
     # Workaround because the regex mangled the unicode
     # _PUNCTUATION = u'.,<>;:/?\\\"\'-_+=!@\#$%^&*()'
