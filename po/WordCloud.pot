@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-12 18:26+0530\n"
+"POT-Creation-Date: 2022-10-10 17:54-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,50 +27,50 @@ msgid ""
 "be saved to the Journal."
 msgstr ""
 
-#: activity.py:206
+#: activity.py:207
 msgid "Edit"
 msgstr ""
 
-#: activity.py:233
+#: activity.py:234
 msgid "Create the cloud"
 msgstr ""
 
-#: activity.py:246
+#: activity.py:247
 msgid "Repeat words"
 msgstr ""
 
-#: activity.py:388
+#: activity.py:389
 msgid "WordCloud error"
 msgstr ""
 
-#: activity.py:393
+#: activity.py:394
 msgid "All of your words are \"stop words.\" Please try adding more words."
 msgstr ""
 
-#: activity.py:397
+#: activity.py:398
 msgid "Oops. There was a problem. Please try again."
 msgstr ""
 
-#: activity.py:408
-msgid "Word Cloud"
+#: activity.py:411
+msgid "Word Cloud-{}"
 msgstr ""
 
-#: activity.py:495 activity.py:501
+#: activity.py:499 activity.py:505
 msgid "random"
 msgstr ""
 
-#: activity.py:546
+#: activity.py:550
 msgid "Cloud Text"
 msgstr ""
 
-#: activity.py:684
+#: activity.py:688
 msgid "Select layout"
 msgstr ""
 
-#: activity.py:727
+#: activity.py:731
 msgid "Select color scheme"
 msgstr ""
 
-#: activity.py:770
+#: activity.py:774
 msgid "Select font"
 msgstr ""
