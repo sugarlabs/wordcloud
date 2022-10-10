@@ -1,4 +1,10 @@
 NEWS
+7
+* Fix labelling error (Sourabha G)
+* Feature: Accepts uppercase characters (Sourabha G)
+* Remove unnecessary stop button accelerator (James Cameron)
+* Add number to image name when writing to datastore (Ibiam Chihurumnaya)
+* Fix broken image link (Rahul Vaish)
 
 6
 * Port to Python3 (Kiy4h, Jui Pradhan)
